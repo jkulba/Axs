@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+        <PackageReference Include="Swashbuckle.AspNetCore" />
+    </ItemGroup>
+    <PropertyGroup>
+        <UserSecretsId>ff2918d8-610f-4a04-bb35-dec23cb6e8c1</UserSecretsId>
+    </PropertyGroup>
+</Project>
