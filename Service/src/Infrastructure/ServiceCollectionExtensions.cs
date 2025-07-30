@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Infrastructure.Data;
+using Infrastructure.Repositories;
 
 namespace Infrastructure;
 
@@ -13,8 +14,8 @@ public static class ServiceCollectionExtensions
         services.AddDbContext<AccessDbContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
-        // Add other infrastructure services here
-        // services.AddScoped<IRepository, Repository>();
+        // Add repositories
+        services.AddScoped<IAccessRequestRepository, AccessRequestRepository>();
 
         return services;
     }

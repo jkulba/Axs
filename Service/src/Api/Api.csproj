@@ -3,6 +3,10 @@
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
         <PackageReference Include="Swashbuckle.AspNetCore" />
     </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="../Infrastructure/Infrastructure.csproj" />
+        <ProjectReference Include="../Domain/Domain.csproj" />
+    </ItemGroup>
     <PropertyGroup>
         <UserSecretsId>ff2918d8-610f-4a04-bb35-dec23cb6e8c1</UserSecretsId>
     </PropertyGroup>
