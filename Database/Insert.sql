@@ -1,7 +1,6 @@
 -- Sample data for AccessRequest table
 -- Insert 25 realistic records with varied states and information
 USE AccessDb;
-GO
 
 -- Set the date to a fixed point for reproducible results
 DECLARE @Now DATETIME = GETUTCDATE();
