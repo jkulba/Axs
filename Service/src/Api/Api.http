@@ -1,6 +1,54 @@
-@Api_HostAddress = http://localhost:5277
+@Api_HostAddress = http://localhost:7001
 
-GET {{Api_HostAddress}}/weatherforecast/
+# Get AccessRequest by ID
+GET {{Api_HostAddress}}/api/AccessRequests/5
 Accept: application/json
 
 ###
+
+# Get All AccessRequests
+GET {{Api_HostAddress}}/api/AccessRequests
+Accept: application/json
+
+###
+
+# Create AccessRequest
+POST {{Api_HostAddress}}/api/AccessRequests
+Content-Type: application/json
+Accept: application/json
+
+{
+  "userName": "scarlett",
+  "employeeNum": "EMP001",
+  "userId": "sjohansson",
+  "accessGroupId": 1,
+  "requestReason": "Need access for project work",
+  "requestedByUserId": "manager456"
+}
+
+###
+
+# Update AccessRequest
+PUT {{Api_HostAddress}}/api/AccessRequests/5
+Content-Type: application/json
+Accept: application/json
+
+{
+  "requestId": 5,
+  "userId": "user123",
+  "userName": "jimmy",
+  "employeeNum": "EMP551",
+  "accessGroupId": 1,
+  "requestReason": "Updated reason for access request",
+  "requestedByUserId": "manager456",
+  "status": "Approved"
+}
+
+###
+
+# Delete AccessRequest
+DELETE {{Api_HostAddress}}/api/AccessRequests/5
+Accept: application/json
+
+###
+
