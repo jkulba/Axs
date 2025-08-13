@@ -34,6 +34,7 @@ public static class ServiceCollectionExtensions
         // Add repositories
         services.AddScoped<IAccessRequestRepository, AccessRequestRepository>();
         services.AddScoped<IAccessGroupRepository, AccessGroupRepository>();
+        services.AddScoped<IAccessRequestHistoryRepository, AccessRequestHistoryRepository>();
 
         return services;
     }
