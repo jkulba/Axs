@@ -1,5 +1,5 @@
+using Application.Interfaces;
 using Domain.Entities;
-using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers;
@@ -8,217 +8,182 @@ namespace Api.Controllers;
 [Route("api/[controller]")]
 public class AccessRequestsController : ControllerBase
 {
-    private readonly IAccessRequestRepository _accessRequestRepository;
+    private readonly IAccessRequestRepository _repository;
     private readonly ILogger<AccessRequestsController> _logger;
 
     public AccessRequestsController(
-        IAccessRequestRepository accessRequestRepository,
+        IAccessRequestRepository repository,
         ILogger<AccessRequestsController> logger)
     {
-        _accessRequestRepository = accessRequestRepository ?? throw new ArgumentNullException(nameof(accessRequestRepository));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _repository = repository;
+        _logger = logger;
     }
 
-    /// <summary>
-    /// Get all access requests
-    /// </summary>
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<AccessRequest>>> GetAllAsync()
+    public async Task<ActionResult<IEnumerable<AccessRequest>>> GetAll()
     {
         try
         {
-            var requests = await _accessRequestRepository.GetAllAsync();
+            var requests = await _repository.GetAllAsync();
             return Ok(requests);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving all access requests");
-            return StatusCode(500, "An error occurred while retrieving access requests");
+            return StatusCode(500, "Internal server error");
         }
     }
 
-    /// <summary>
-    /// Get access request by ID
-    /// </summary>
-    [HttpGet("{id:int}")]
-    public async Task<ActionResult<AccessRequest>> GetByIdAsync(int id)
+    [HttpGet("{id}")]
+    public async Task<ActionResult<AccessRequest>> GetById(int id)
     {
         try
         {
-            var request = await _accessRequestRepository.GetByIdAsync(id);
+            var request = await _repository.GetByIdAsync(id);
             if (request == null)
             {
-                return NotFound($"Access request with ID {id} not found");
+                return NotFound();
             }
             return Ok(request);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving access request with ID {RequestId}", id);
-            return StatusCode(500, "An error occurred while retrieving the access request");
+            return StatusCode(500, "Internal server error");
         }
     }
 
-    /// <summary>
-    /// Get access request by request code
-    /// </summary>
-    [HttpGet("by-code/{requestCode:guid}")]
-    public async Task<ActionResult<AccessRequest>> GetByRequestCodeAsync(Guid requestCode)
+    [HttpGet("by-request-code/{requestCode}")]
+    public async Task<ActionResult<AccessRequest>> GetByRequestCode(Guid requestCode)
     {
         try
         {
-            var request = await _accessRequestRepository.GetByRequestCodeAsync(requestCode);
+            var request = await _repository.GetByRequestCodeAsync(requestCode);
             if (request == null)
             {
-                return NotFound($"Access request with code {requestCode} not found");
+                return NotFound();
             }
             return Ok(request);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving access request with code {RequestCode}", requestCode);
-            return StatusCode(500, "An error occurred while retrieving the access request");
+            return StatusCode(500, "Internal server error");
         }
     }
 
-    /// <summary>
-    /// Get access request by employee number
-    /// </summary>
-    [HttpGet("by-employee/{employeeNum}")]
-    public async Task<ActionResult<AccessRequest>> GetByEmployeeNumAsync(string employeeNum)
+    [HttpGet("by-job-number/{jobNumber}")]
+    public async Task<ActionResult<IEnumerable<AccessRequest>>> GetByJobNumber(int jobNumber)
     {
         try
         {
-            if (string.IsNullOrWhiteSpace(employeeNum))
-            {
-                return BadRequest("Employee number cannot be empty");
-            }
-
-            var request = await _accessRequestRepository.GetByEmployeeNumAsync(employeeNum);
-            if (request == null)
-            {
-                return NotFound($"Access request for employee {employeeNum} not found");
-            }
-            return Ok(request);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error retrieving access request for employee {EmployeeNum}", employeeNum);
-            return StatusCode(500, "An error occurred while retrieving the access request");
-        }
-    }
-
-    /// <summary>
-    /// Get access requests by approval status
-    /// </summary>
-    [HttpGet("by-status/{approvalStatus:int}")]
-    public async Task<ActionResult<IEnumerable<AccessRequest>>> GetByApprovalStatusAsync(int approvalStatus)
-    {
-        try
-        {
-            var requests = await _accessRequestRepository.GetByApprovalStatusAsync(approvalStatus);
+            var requests = await _repository.GetByJobNumberAsync(jobNumber);
             return Ok(requests);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving access requests with status {ApprovalStatus}", approvalStatus);
-            return StatusCode(500, "An error occurred while retrieving access requests");
+            _logger.LogError(ex, "Error retrieving access requests for job number {JobNumber}", jobNumber);
+            return StatusCode(500, "Internal server error");
         }
     }
 
-    /// <summary>
-    /// Create a new access request
-    /// </summary>
-    [HttpPost]
-    public async Task<ActionResult<AccessRequest>> CreateAsync([FromBody] AccessRequest accessRequest)
+    [HttpGet("by-user/{userName}")]
+    public async Task<ActionResult<IEnumerable<AccessRequest>>> GetByUserName(string userName)
     {
         try
         {
-            if (accessRequest == null)
+            var requests = await _repository.GetByUserNameAsync(userName);
+            return Ok(requests);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving access requests for user {UserName}", userName);
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<AccessRequest>> Create(AccessRequest request)
+    {
+        try
+        {
+            if (request.RequestCode == Guid.Empty)
             {
-                return BadRequest("Access request cannot be null");
+                request.RequestCode = Guid.NewGuid();
             }
 
-            // Generate a new request code if not provided
-            if (accessRequest.RequestCode == Guid.Empty)
+            if (request.UtcCreatedAt == null)
             {
-                accessRequest.RequestCode = Guid.NewGuid();
+                request.UtcCreatedAt = DateTime.UtcNow;
             }
 
-            // Set creation timestamp
-            accessRequest.UtcCreatedAt = DateTime.UtcNow;
-
-            var createdRequest = await _accessRequestRepository.AddAsync(accessRequest);
-            return CreatedAtAction(
-                nameof(GetByIdAsync),
-                new { id = createdRequest.RequestId },
-                createdRequest);
+            var createdRequest = await _repository.AddAsync(request);
+            return CreatedAtAction(nameof(GetById), new { id = createdRequest.RequestId }, createdRequest);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating access request");
-            return StatusCode(500, "An error occurred while creating the access request");
+            return StatusCode(500, "Internal server error");
         }
     }
 
-    /// <summary>
-    /// Update an existing access request
-    /// </summary>
-    [HttpPut("{id:int}")]
-    public async Task<ActionResult<AccessRequest>> UpdateAsync(int id, [FromBody] AccessRequest accessRequest)
+    [HttpPut("{id}")]
+    public async Task<ActionResult<AccessRequest>> Update(int id, AccessRequest request)
     {
         try
         {
-            if (accessRequest == null)
+            if (id != request.RequestId)
             {
-                return BadRequest("Access request cannot be null");
+                return BadRequest("ID in URL does not match ID in request body");
             }
 
-            if (id != accessRequest.RequestId)
+            if (!await _repository.ExistsAsync(id))
             {
-                return BadRequest("ID mismatch between route and body");
+                return NotFound();
             }
 
-            var exists = await _accessRequestRepository.ExistsAsync(id);
-            if (!exists)
-            {
-                return NotFound($"Access request with ID {id} not found");
-            }
-
-            // Set update timestamp
-            accessRequest.UtcUpdatedAt = DateTime.UtcNow;
-
-            var updatedRequest = await _accessRequestRepository.UpdateAsync(accessRequest);
+            var updatedRequest = await _repository.UpdateAsync(request);
             return Ok(updatedRequest);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating access request with ID {RequestId}", id);
-            return StatusCode(500, "An error occurred while updating the access request");
+            return StatusCode(500, "Internal server error");
         }
     }
 
-    /// <summary>
-    /// Delete an access request
-    /// </summary>
-    [HttpDelete("{id:int}")]
-    public async Task<ActionResult> DeleteAsync(int id)
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> Delete(int id)
     {
         try
         {
-            var exists = await _accessRequestRepository.ExistsAsync(id);
-            if (!exists)
+            if (!await _repository.ExistsAsync(id))
             {
-                return NotFound($"Access request with ID {id} not found");
+                return NotFound();
             }
 
-            await _accessRequestRepository.DeleteAsync(id);
+            await _repository.DeleteAsync(id);
             return NoContent();
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error deleting access request with ID {RequestId}", id);
-            return StatusCode(500, "An error occurred while deleting the access request");
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    [HttpGet("exists/{requestCode}")]
+    public async Task<ActionResult<bool>> ExistsByRequestCode(Guid requestCode)
+    {
+        try
+        {
+            var exists = await _repository.ExistsByRequestCodeAsync(requestCode);
+            return Ok(exists);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error checking if access request exists with code {RequestCode}", requestCode);
+            return StatusCode(500, "Internal server error");
         }
     }
 }

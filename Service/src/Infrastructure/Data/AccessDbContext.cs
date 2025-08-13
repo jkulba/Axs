@@ -1,135 +1,120 @@
-﻿using System;
-using System.Collections.Generic;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Data;
 
-public partial class AccessDbContext : DbContext
+public class AccessDbContext : DbContext
 {
-    public AccessDbContext()
+    public AccessDbContext(DbContextOptions<AccessDbContext> options) : base(options)
     {
     }
 
-    public AccessDbContext(DbContextOptions<AccessDbContext> options)
-        : base(options)
-    {
-    }
-
-    public virtual DbSet<AccessGroup> AccessGroups { get; set; }
-
-    public virtual DbSet<AccessRequest> AccessRequests { get; set; }
-
-    public virtual DbSet<AccessRequestHistory> AccessRequestHistories { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        // Connection string will be configured via dependency injection in Program.cs
-        // This method is left empty to avoid hardcoded connection strings
-    }
+    public DbSet<AccessRequest> AccessRequests { get; set; }
+    public DbSet<Authorization> Authorizations { get; set; }
+    public DbSet<Activity> Activities { get; set; }
+    public DbSet<UserGroup> UserGroups { get; set; }
+    public DbSet<UserGroupMember> UserGroupMembers { get; set; }
+    public DbSet<GroupAuthorization> GroupAuthorizations { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<AccessGroup>(entity =>
-        {
-            entity.HasKey(e => e.GroupId).HasName("PK__AccessGr__149AF36A4CAD0FF6");
+        base.OnModelCreating(modelBuilder);
 
-            entity.ToTable("AccessGroup", tb => tb.HasComment("Stores access groups for profile authorization"));
-
-            entity.HasIndex(e => e.GroupCode, "IX_AccessGroup_GroupCode").IsUnique();
-
-            entity.Property(e => e.CreatedByNum).HasMaxLength(50);
-            entity.Property(e => e.GroupName).HasMaxLength(255);
-        });
-
+        // Configure AccessRequest
         modelBuilder.Entity<AccessRequest>(entity =>
         {
             entity.HasKey(e => e.RequestId);
+            entity.Property(e => e.RequestCode).IsRequired();
+            entity.Property(e => e.UserName).IsRequired().HasMaxLength(255);
+            entity.Property(e => e.ActivityCode).HasMaxLength(50);
+            entity.Property(e => e.Application).HasMaxLength(255);
+            entity.Property(e => e.Version).HasMaxLength(50);
+            entity.Property(e => e.Machine).HasMaxLength(255);
 
-            entity.ToTable("AccessRequest", tb => tb.HasTrigger("TR_AccessRequestHistory"));
+            // Create unique index on RequestCode
+            entity.HasIndex(e => e.RequestCode).IsUnique();
 
-            entity.HasIndex(e => e.EmployeeNum, "Index_EmployeeNum").IsUnique();
-
-            entity.HasIndex(e => e.RequestCode, "Index_RequestCode").IsUnique();
-
-            entity.Property(e => e.AccessExpiresAt).HasColumnType("datetime");
-            entity.Property(e => e.ApproverNum)
-                .HasMaxLength(12)
-                .IsUnicode(false);
-            entity.Property(e => e.CreatedByNum)
-                .HasMaxLength(12)
-                .IsUnicode(false);
-            entity.Property(e => e.Email)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.EmployeeNum)
-                .HasMaxLength(12)
-                .IsUnicode(false);
-            entity.Property(e => e.FirstName)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.JobManufacturingSiteCode)
-                .HasMaxLength(12)
-                .IsUnicode(false);
-            entity.Property(e => e.JobSiteCode)
-                .HasMaxLength(12)
-                .IsUnicode(false);
-            entity.Property(e => e.LastName)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.UpdatedByNum)
-                .HasMaxLength(12)
-                .IsUnicode(false);
-            entity.Property(e => e.UserName)
-                .HasMaxLength(12)
-                .IsUnicode(false);
-            entity.Property(e => e.UtcCreatedAt).HasColumnType("datetime");
-            entity.Property(e => e.UtcUpdatedAt).HasColumnType("datetime");
+            // Create indexes for common queries
+            entity.HasIndex(e => e.JobNumber);
+            entity.HasIndex(e => e.UserName);
         });
 
-        modelBuilder.Entity<AccessRequestHistory>(entity =>
+        // Configure Authorization
+        modelBuilder.Entity<Authorization>(entity =>
         {
-            entity.HasKey(e => e.AccessRequestHistoryId).HasName("PK__AccessRe__3AF1115C2B4781BE");
+            entity.HasKey(e => e.AuthorizationId);
+            entity.Property(e => e.UserId).IsRequired().HasMaxLength(255);
+            entity.Property(e => e.CreatedByNum).HasMaxLength(50);
+            entity.Property(e => e.UpdatedByNum).HasMaxLength(50);
 
-            entity.ToTable("AccessRequestHistory");
+            // Configure relationship with Activity
+            entity.HasOne(e => e.Activity)
+                  .WithMany(a => a.Authorizations)
+                  .HasForeignKey(e => e.ActivityId)
+                  .OnDelete(DeleteBehavior.Restrict);
 
-            entity.Property(e => e.AccessExpiresAt).HasColumnType("datetime");
-            entity.Property(e => e.ApproverNum)
-                .HasMaxLength(12)
-                .IsUnicode(false);
-            entity.Property(e => e.CreatedByNum)
-                .HasMaxLength(12)
-                .IsUnicode(false);
-            entity.Property(e => e.Email)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.EmployeeNum)
-                .HasMaxLength(12)
-                .IsUnicode(false);
-            entity.Property(e => e.FirstName)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.JobManufacturingSiteCode)
-                .HasMaxLength(12)
-                .IsUnicode(false);
-            entity.Property(e => e.JobSiteCode)
-                .HasMaxLength(12)
-                .IsUnicode(false);
-            entity.Property(e => e.LastName)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.UpdatedByNum)
-                .HasMaxLength(12)
-                .IsUnicode(false);
-            entity.Property(e => e.UserName)
-                .HasMaxLength(12)
-                .IsUnicode(false);
-            entity.Property(e => e.UtcCreatedAt).HasColumnType("datetime");
-            entity.Property(e => e.UtcUpdatedAt).HasColumnType("datetime");
+            // Create indexes
+            entity.HasIndex(e => new { e.JobNumber, e.UserId, e.ActivityId }).IsUnique();
         });
 
-        OnModelCreatingPartial(modelBuilder);
-    }
+        // Configure Activity
+        modelBuilder.Entity<Activity>(entity =>
+        {
+            entity.HasKey(e => e.ActivityId);
+            entity.Property(e => e.ActivityCode).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.ActivityName).IsRequired().HasMaxLength(255);
+            entity.Property(e => e.Description).HasMaxLength(1000);
 
-    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+            // Create unique index on ActivityCode
+            entity.HasIndex(e => e.ActivityCode).IsUnique();
+        });
+
+        // Configure UserGroup
+        modelBuilder.Entity<UserGroup>(entity =>
+        {
+            entity.HasKey(e => e.GroupId);
+            entity.Property(e => e.GroupName).IsRequired().HasMaxLength(255);
+            entity.Property(e => e.Description).HasMaxLength(1000);
+            entity.Property(e => e.GroupOwner).HasMaxLength(255);
+
+            // Create unique index on GroupName
+            entity.HasIndex(e => e.GroupName).IsUnique();
+        });
+
+        // Configure UserGroupMember
+        modelBuilder.Entity<UserGroupMember>(entity =>
+        {
+            entity.HasKey(e => new { e.GroupId, e.UserId });
+            entity.Property(e => e.UserId).IsRequired().HasMaxLength(255);
+
+            // Configure relationship with UserGroup
+            entity.HasOne(e => e.Group)
+                  .WithMany(g => g.Members)
+                  .HasForeignKey(e => e.GroupId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Configure GroupAuthorization
+        modelBuilder.Entity<GroupAuthorization>(entity =>
+        {
+            entity.HasKey(e => e.AuthorizationId);
+            entity.Property(e => e.CreatedByNum).HasMaxLength(50);
+            entity.Property(e => e.UpdatedByNum).HasMaxLength(50);
+
+            // Configure relationship with UserGroup
+            entity.HasOne(e => e.Group)
+                  .WithMany(g => g.GroupAuthorizations)
+                  .HasForeignKey(e => e.GroupId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            // Configure relationship with Activity
+            entity.HasOne(e => e.Activity)
+                  .WithMany(a => a.GroupAuthorizations)
+                  .HasForeignKey(e => e.ActivityId)
+                  .OnDelete(DeleteBehavior.Restrict);
+
+            // Create unique index
+            entity.HasIndex(e => new { e.JobNumber, e.GroupId, e.ActivityId }).IsUnique();
+        });
+    }
 }

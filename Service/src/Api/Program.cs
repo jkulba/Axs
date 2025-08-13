@@ -1,4 +1,4 @@
-using Infrastructure;
+using Infrastructure.Extensions;
 using Serilog;
 using Serilog.Events;
 
@@ -24,7 +24,7 @@ try
     builder.Services.AddControllers();
 
     // Add Infrastructure services (includes DbContext and repositories)
-    builder.Services.AddInfrastructureServices(builder.Configuration, builder.Environment);
+    builder.Services.AddInfrastructure(builder.Configuration);
 
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Services.AddEndpointsApiExplorer();
