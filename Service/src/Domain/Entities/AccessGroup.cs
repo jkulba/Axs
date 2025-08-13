@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Domain.Entities;
 
 /// <summary>
-/// Stores access groups for profile authorization
+/// Stores access groups
 /// </summary>
 public class AccessGroup
 {
