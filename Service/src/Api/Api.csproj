@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+    <PropertyGroup>
+        <PackageId>Api</PackageId>
+        <UserSecretsId>d6e61521-984b-48e8-8b67-79777e0f3d3c</UserSecretsId>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+        <PackageReference Include="Microsoft.OpenApi" />
+        <PackageReference Include="Serilog.AspNetCore" />
+        <PackageReference Include="Serilog.Enrichers.ClientInfo" />
+        <PackageReference Include="Serilog.Enrichers.Environment" />
+        <PackageReference Include="Serilog.Enrichers.Thread" />
+        <PackageReference Include="Serilog.Exceptions" />
+        <PackageReference Include="Serilog.Settings.Configuration" />
+        <PackageReference Include="Serilog.Sinks.Async" />
+        <PackageReference Include="Serilog.Sinks.Seq" />
+        <PackageReference Include="Swashbuckle.AspNetCore" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="../Application/Application.csproj" />
+        <ProjectReference Include="../Domain/Domain.csproj" />
+        <ProjectReference Include="../Infrastructure/Infrastructure.csproj" />
+    </ItemGroup>
+</Project>

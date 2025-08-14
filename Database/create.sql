@@ -1,169 +1,225 @@
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
+SET ANSI_NULLS ON;
+SET QUOTED_IDENTIFIER ON;
 
 -- Check if database exists before creating it
 IF NOT EXISTS (SELECT name
 FROM master.dbo.sysdatabases
-WHERE name = 'AccessDb')
+WHERE name = 'axs')
 BEGIN
-	-- Create a new database only if it doesn't exist
-	CREATE DATABASE AccessDb;
-	PRINT 'Database AccessDb created.';
+    -- Create a new database only if it doesn't exist
+    CREATE DATABASE axs;
+    PRINT 'Database axs created.';
 END
 ELSE
 BEGIN
-	PRINT 'Database AccessDb already exists.';
+    PRINT 'Database axs already exists.';
 END
 GO
 
 -- Switch to the newly created database
-USE AccessDb;
+USE axs;
 GO
 
-IF  EXISTS (SELECT *
+-- Drop and recreate Activity table
+IF EXISTS (SELECT *
 FROM sys.objects
-WHERE object_id = OBJECT_ID(N'[dbo].[AccessGroup]') AND type in (N'U'))
-DROP TABLE [dbo].[AccessGroup]
+WHERE object_id = OBJECT_ID(N'[dbo].[Activity]') AND type in (N'U'))
+DROP TABLE [dbo].[Activity]
 GO
 
-CREATE TABLE [dbo].[AccessGroup](
-	[GroupId] [int] IDENTITY(1,1) NOT NULL,
-	[GroupCode] [uniqueidentifier] NOT NULL,
-	[GroupName] [nvarchar](255) NULL,
-	[UtcExpirationDate] [datetime2](7) NULL,
-	[UtcCreatedAt] [datetime2](7) NULL,
-	[CreatedByNum] [nvarchar](50) NULL
+CREATE TABLE [dbo].[Activity]
+(
+    [ActivityId] [int] IDENTITY(1,1) NOT NULL,
+    [ActivityCode] [nvarchar](50) NOT NULL,
+    [ActivityName] [nvarchar](100) NOT NULL,
+    [Description] [nvarchar](500) NULL,
+    [IsActive] [bit] NOT NULL DEFAULT 1
 ) ON [PRIMARY]
 GO
-ALTER TABLE [dbo].[AccessGroup] ADD PRIMARY KEY CLUSTERED 
+
+ALTER TABLE [dbo].[Activity] ADD CONSTRAINT [PK_Activity] PRIMARY KEY CLUSTERED 
 (
-	[GroupId] ASC
+    [ActivityId] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
-CREATE UNIQUE NONCLUSTERED INDEX [IX_AccessGroup_GroupCode] ON [dbo].[AccessGroup]
+
+CREATE UNIQUE NONCLUSTERED INDEX [IX_Activity_ActivityCode] ON [dbo].[Activity]
 (
-	[GroupCode] ASC
+    [ActivityCode] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
-EXEC sys.sp_addextendedproperty @name=N'MS_Description', @value=N'Stores access groups for profile authorization' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'TABLE',@level1name=N'AccessGroup'
-GO
 
-
-IF  EXISTS (SELECT *
+-- Drop and recreate UserGroup table
+IF EXISTS (SELECT *
 FROM sys.objects
-WHERE object_id = OBJECT_ID(N'[dbo].[AccessRequestHistory]') AND type in (N'U'))
-DROP TABLE [dbo].[AccessRequestHistory]
+WHERE object_id = OBJECT_ID(N'[dbo].[UserGroup]') AND type in (N'U'))
+DROP TABLE [dbo].[UserGroup]
 GO
-CREATE TABLE [dbo].[AccessRequestHistory]
+
+CREATE TABLE [dbo].[UserGroup]
 (
-	[AccessRequestHistoryId] [int] IDENTITY(1,1) NOT NULL,
-	[Operation] [int] NOT NULL,
-	[RequestId] [int] NOT NULL,
-	[RequestCode] [uniqueidentifier] NOT NULL,
-	[EmployeeNum] [varchar](12) NOT NULL,
-	[UserName] [varchar](12) NOT NULL,
-	[FirstName] [varchar](50) NULL,
-	[LastName] [varchar](50) NULL,
-	[Email] [varchar](50) NULL,
-	[JobNumber] [int] NOT NULL,
-	[CycleNumber] [int] NOT NULL,
-	[JobSiteCode] [varchar](12) NULL,
-	[JobManufacturingSiteCode] [varchar](12) NULL,
-	[ApproverNum] [varchar](12) NULL,
-	[ApprovalStatus] [int] NOT NULL,
-	[UtcCreatedAt] [datetime] NULL,
-	[CreatedByNum] [varchar](12) NULL,
-	[UtcUpdatedAt] [datetime] NULL,
-	[UpdatedByNum] [varchar](12) NULL,
-	[AccessExpiresAt] [datetime] NULL
+    [GroupId] [int] IDENTITY(1,1) NOT NULL,
+    [GroupName] [nvarchar](100) NOT NULL,
+    [Description] [nvarchar](500) NULL,
+    [GroupOwner] [nvarchar](50) NULL
 ) ON [PRIMARY]
 GO
-ALTER TABLE [dbo].[AccessRequestHistory] ADD PRIMARY KEY CLUSTERED 
+
+ALTER TABLE [dbo].[UserGroup] ADD CONSTRAINT [PK_UserGroup] PRIMARY KEY CLUSTERED 
 (
-	[AccessRequestHistoryId] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+    [GroupId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
 
-IF  EXISTS (SELECT *
+-- Drop and recreate AccessRequest table
+IF EXISTS (SELECT *
 FROM sys.objects
 WHERE object_id = OBJECT_ID(N'[dbo].[AccessRequest]') AND type in (N'U'))
 DROP TABLE [dbo].[AccessRequest]
 GO
+
 CREATE TABLE [dbo].[AccessRequest]
 (
-	[RequestId] [int] IDENTITY(1,1) NOT NULL,
-	[RequestCode] [uniqueidentifier] NOT NULL,
-	[EmployeeNum] [varchar](12) NOT NULL,
-	[UserName] [varchar](12) NOT NULL,
-	[FirstName] [varchar](50) NULL,
-	[LastName] [varchar](50) NULL,
-	[Email] [varchar](50) NULL,
-	[JobNumber] [int] NOT NULL,
-	[CycleNumber] [int] NOT NULL,
-	[JobSiteCode] [varchar](12) NULL,
-	[JobManufacturingSiteCode] [varchar](12) NULL,
-	[ApproverNum] [varchar](12) NULL,
-	[ApprovalStatus] [int] NOT NULL,
-	[UtcCreatedAt] [datetime] NULL,
-	[CreatedByNum] [varchar](12) NULL,
-	[UtcUpdatedAt] [datetime] NULL,
-	[UpdatedByNum] [varchar](12) NULL,
-	[AccessExpiresAt] [datetime] NULL
+    [RequestId] [int] IDENTITY(1,1) NOT NULL,
+    [RequestCode] [uniqueidentifier] NOT NULL,
+    [UserName] [nvarchar](50) NOT NULL,
+    [JobNumber] [int] NOT NULL,
+    [CycleNumber] [int] NOT NULL,
+    [ActivityCode] [nvarchar](50) NULL,
+    [Application] [nvarchar](100) NULL,
+    [Version] [nvarchar](50) NULL,
+    [Machine] [nvarchar](100) NULL,
+    [UtcCreatedAt] [datetime] NULL
 ) ON [PRIMARY]
 GO
-ALTER TABLE [dbo].[AccessRequest] ADD  CONSTRAINT [PK_AccessRequest] PRIMARY KEY CLUSTERED 
+
+ALTER TABLE [dbo].[AccessRequest] ADD CONSTRAINT [PK_AccessRequest] PRIMARY KEY CLUSTERED 
 (
-	[RequestId] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-GO
-SET ANSI_PADDING ON
-GO
-CREATE UNIQUE NONCLUSTERED INDEX [Index_EmployeeNum] ON [dbo].[AccessRequest]
-(
-	[EmployeeNum] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-GO
-CREATE UNIQUE NONCLUSTERED INDEX [Index_RequestCode] ON [dbo].[AccessRequest]
-(
-	[RequestCode] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-GO
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
+    [RequestId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
 
-CREATE TRIGGER [dbo].[TR_AccessRequestHistory] ON [dbo].[AccessRequest]
-FOR insert, update, delete
-AS
-IF EXISTS (SELECT 0
-FROM deleted)
-BEGIN
-	IF EXISTS (SELECT 0
-	FROM inserted)
-    BEGIN
-		-- Update request, Operation 2
-		INSERT INTO [AccessRequestHistory]
-		SELECT 2, *
-		FROM inserted
-	END
-    ELSE
-    BEGIN
-		-- Delete request, Operation 3
-		INSERT INTO [AccessRequestHistory]
-		SELECT 3, *
-		FROM deleted
-	END
-END
-ELSE
-BEGIN
-	-- Insert request, Operation 1
-	INSERT INTO [AccessRequestHistory]
-	SELECT 1, *
-	FROM inserted
-END
+CREATE UNIQUE NONCLUSTERED INDEX [Index_RequestCode] ON [dbo].[AccessRequest]
+(
+    [RequestCode] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 GO
-ALTER TABLE [dbo].[AccessRequest] ENABLE TRIGGER [TR_AccessRequestHistory]
+
+-- Drop and recreate Authorization table (must be created after Activity table for foreign key)
+IF EXISTS (SELECT *
+FROM sys.objects
+WHERE object_id = OBJECT_ID(N'[dbo].[Authorization]') AND type in (N'U'))
+DROP TABLE [dbo].[Authorization]
+GO
+
+CREATE TABLE [dbo].[Authorization]
+(
+    [AuthorizationId] [int] IDENTITY(1,1) NOT NULL,
+    [JobNumber] [int] NOT NULL,
+    [UserId] [nvarchar](50) NOT NULL,
+    [ActivityId] [int] NOT NULL,
+    [IsAuthorized] [bit] NOT NULL,
+    [UtcCreatedAt] [datetime] NOT NULL,
+    [CreatedByNum] [nvarchar](50) NULL,
+    [UtcUpdatedAt] [datetime] NULL,
+    [UpdatedByNum] [nvarchar](50) NULL
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[Authorization] ADD CONSTRAINT [PK_Authorization] PRIMARY KEY CLUSTERED 
+(
+    [AuthorizationId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+CREATE UNIQUE NONCLUSTERED INDEX [IX_Authorization_JobNumber_UserId_ActivityId] ON [dbo].[Authorization]
+(
+    [JobNumber] ASC,
+    [UserId] ASC,
+    [ActivityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+-- Drop and recreate UserGroupMember table (must be created after UserGroup table for foreign key)
+IF EXISTS (SELECT *
+FROM sys.objects
+WHERE object_id = OBJECT_ID(N'[dbo].[UserGroupMember]') AND type in (N'U'))
+DROP TABLE [dbo].[UserGroupMember]
+GO
+
+CREATE TABLE [dbo].[UserGroupMember]
+(
+    [GroupId] [int] NOT NULL,
+    [UserId] [nvarchar](50) NOT NULL
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[UserGroupMember] ADD CONSTRAINT [PK_UserGroupMember] PRIMARY KEY CLUSTERED 
+(
+    [GroupId] ASC,
+    [UserId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+-- Drop and recreate GroupAuthorization table (must be created after UserGroup and Activity tables for foreign keys)
+IF EXISTS (SELECT *
+FROM sys.objects
+WHERE object_id = OBJECT_ID(N'[dbo].[GroupAuthorization]') AND type in (N'U'))
+DROP TABLE [dbo].[GroupAuthorization]
+GO
+
+CREATE TABLE [dbo].[GroupAuthorization]
+(
+    [AuthorizationId] [int] IDENTITY(1,1) NOT NULL,
+    [JobNumber] [int] NOT NULL,
+    [GroupId] [int] NOT NULL,
+    [ActivityId] [int] NOT NULL,
+    [IsAuthorized] [bit] NOT NULL,
+    [UtcCreatedAt] [datetime] NOT NULL,
+    [CreatedByNum] [nvarchar](50) NULL,
+    [UtcUpdatedAt] [datetime] NULL,
+    [UpdatedByNum] [nvarchar](50) NULL
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[GroupAuthorization] ADD CONSTRAINT [PK_GroupAuthorization] PRIMARY KEY CLUSTERED 
+(
+    [AuthorizationId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+CREATE UNIQUE NONCLUSTERED INDEX [IX_GroupAuthorization_JobNumber_GroupId_ActivityId] ON [dbo].[GroupAuthorization]
+(
+    [JobNumber] ASC,
+    [GroupId] ASC,
+    [ActivityId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+GO
+
+-- Add Foreign Key Constraints
+ALTER TABLE [dbo].[Authorization] ADD CONSTRAINT [FK_Authorization_Activity]
+FOREIGN KEY([ActivityId])
+REFERENCES [dbo].[Activity] ([ActivityId])
+ON DELETE NO ACTION
+GO
+
+ALTER TABLE [dbo].[UserGroupMember] ADD CONSTRAINT [FK_UserGroupMember_UserGroup]
+FOREIGN KEY([GroupId])
+REFERENCES [dbo].[UserGroup] ([GroupId])
+ON DELETE CASCADE
+GO
+
+ALTER TABLE [dbo].[GroupAuthorization] ADD CONSTRAINT [FK_GroupAuthorization_UserGroup]
+FOREIGN KEY([GroupId])
+REFERENCES [dbo].[UserGroup] ([GroupId])
+ON DELETE NO ACTION
+GO
+
+ALTER TABLE [dbo].[GroupAuthorization] ADD CONSTRAINT [FK_GroupAuthorization_Activity]
+FOREIGN KEY([ActivityId])
+REFERENCES [dbo].[Activity] ([ActivityId])
+ON DELETE NO ACTION
+GO
+
+PRINT 'Database schema updated successfully.'
 GO

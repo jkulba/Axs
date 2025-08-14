@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Axs Control Service</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+
+        h2 {
+            color: #3498db;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+
+        .endpoint {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .method {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 3px;
+            color: white;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .get {
+            background-color: #61affe;
+        }
+
+        .post {
+            background-color: #49cc90;
+        }
+
+        .path {
+            font-family: monospace;
+            font-size: 1.1em;
+        }
+
+        .description {
+            margin-top: 15px;
+        }
+
+        .parameters {
+            margin-top: 15px;
+        }
+
+        .response {
+            margin-top: 15px;
+        }
+
+        code {
+            background-color: #f8f8f8;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+
+        pre {
+            background-color: #f8f8f8;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .note {
+            background-color: #fff8dc;
+            padding: 10px;
+            border-left: 4px solid #ffd700;
+            margin: 15px 0;
+        }
+
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #2980b9;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>
+            <img src="axs-logo-512.png" alt="Axs" style="vertical-align: middle; width: 50px; height: 50px;">
+            Axs Control Service Documentation
+        </h1>
+        <p>Documentation for the Axs Control Service REST API endpoints</p>
+    </header>
+
+    <h2>Swagger and Open API Endpoints</h2>
+
+    <div class="endpoint">
+        <div class="parameters">
+            <h3>Swagger UI URLs</h3>
+            <table>
+                <tr>
+                    <th>Protocol</th>
+                    <th>Path</th>
+                </tr>
+                <tr>
+                    <td>HTTP</td>
+                    <td><a href="http://localhost:5001/swagger" target="_blank">http://localhost:5001/swagger</a></td>
+                </tr>
+                <tr>
+                    <td>HTTPS</td>
+                    <td><a href="http://localhost:7001/swagger/index.html" target="_blank">http://localhost:7001/swagger/index.html</a></td>
+                </tr>
+
+            </table>
+        </div>
+
+        <div class="parameters">
+            <h3>OpenAPI Specification URLs</h3>
+            <table>
+                <tr>
+                    <th>Protocol</th>
+                    <th>Path</th>
+                </tr>
+                <tr>
+                    <td>HTTP</td>
+                    <td><a href="http://localhost:5001/openapi/v1.json"
+                            target="_blank">http://localhost:5001/openapi/v1.json</a></td>
+                </tr>
+                <tr>
+                    <td>HTTPS</td>
+                    <td><a href="https://localhost:7001/openapi/v1.json"
+                            target="_blank">https://localhost:7001/openapi/v1.json</a></td>
+                </tr>
+
+            </table>
+        </div>
+
+        <div class="note">
+            <strong>Note:</strong> The Swagger and OpenApi Endpoints are only availabe when running in Developement
+            mode.
+        </div>
+    </div>
+
+    <h2>API Endpoints</h2>
+
+    <div class="endpoint">
+        <span class="method get">GET</span>
+        <span class="path">/api/graphic-info/objectid/{objectId}</span>
+
+        <div class="description">
+            <h3>Get Graphic Information by Object ID</h3>
+            <p>Retrieves detailed graphic information for a specific object using its unique identifier. Returns the
+                graphic metadata including properties and rendering details.</p>
+        </div>
+
+        <div class="parameters">
+            <h3>Path Parameters</h3>
+            <table>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><code>objectId</code></td>
+                    <td>string</td>
+                    <td>Yes</td>
+                    <td>The unique identifier of the graphic object</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="response">
+            <h3>Responses</h3>
+            <table>
+                <tr>
+                    <th>Status Code</th>
+                    <th>Description</th>
+                    <th>Content Type</th>
+                </tr>
+                <tr>
+                    <td><code>200</code></td>
+                    <td>Successful response with graphic information</td>
+                    <td>application/json</td>
+                </tr>
+                <tr>
+                    <td><code>404</code></td>
+                    <td>Graphic info not found for the specified object ID</td>
+                    <td>application/problem+json</td>
+                </tr>
+                <tr>
+                    <td><code>500</code></td>
+                    <td>Internal server error</td>
+                    <td>application/problem+json</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="parameters">
+            <h3>Example Request</h3>
+            <p><code>GET /api/graphic-info/objectid/12345</code></p>
+        </div>
+
+        <div class="response">
+            <h3>Example Response (200 OK)</h3>
+            <p>Returns a <code>GraphicInfo</code> object containing the graphic metadata and properties.</p>
+        </div>
+
+        <div class="note">
+            <strong>Note:</strong> This endpoint uses the CQRS pattern with query dispatching for retrieving graphic
+            information.
+        </div>
+    </div>
+
+    <div class="endpoint">
+        <span class="method get">GET</span>
+        <span class="path">/api/graphic-info/jobnumber/{jobNumber}</span>
+
+        <div class="description">
+            <h3>Get Graphic Information by Job Number</h3>
+            <p>Retrieves detailed graphic information for a specific job number using its unique identifier. Returns the
+                graphic metadata including properties and rendering details for all graphics associated with the job.
+            </p>
+        </div>
+
+        <div class="parameters">
+            <h3>Path Parameters</h3>
+            <table>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><code>jobNumber</code></td>
+                    <td>string</td>
+                    <td>Yes</td>
+                    <td>The unique job number identifier</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="response">
+            <h3>Responses</h3>
+            <table>
+                <tr>
+                    <th>Status Code</th>
+                    <th>Description</th>
+                    <th>Content Type</th>
+                </tr>
+                <tr>
+                    <td><code>200</code></td>
+                    <td>Successful response with collection of graphic information</td>
+                    <td>application/json</td>
+                </tr>
+                <tr>
+                    <td><code>404</code></td>
+                    <td>Graphic info not found for the specified job number</td>
+                    <td>application/problem+json</td>
+                </tr>
+                <tr>
+                    <td><code>500</code></td>
+                    <td>Internal server error</td>
+                    <td>application/problem+json</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="parameters">
+            <h3>Example Request</h3>
+            <p><code>GET /api/graphic-info/jobnumber/JOB-2025-001</code></p>
+        </div>
+
+        <div class="response">
+            <h3>Example Response (200 OK)</h3>
+            <p>Returns a collection of <code>GraphicInfo</code> objects containing the graphic metadata and properties
+                for all graphics associated with the specified job number.</p>
+        </div>
+
+        <div class="note">
+            <strong>Note:</strong> This endpoint uses the CQRS pattern with query dispatching for retrieving graphic
+            information and returns multiple results.
+        </div>
+    </div>
+
+    <div class="endpoint">
+        <span class="method post">POST</span>
+        <span class="path">/api/graphics/transform</span>
+
+        <div class="description">
+            <h3>Transform Graphic</h3>
+            <p>Processes a graphic transformation request with validation and returns the result. All required fields
+                must be provided and meet the specified format requirements. This endpoint uses FluentValidation for
+                comprehensive request validation.</p>
+        </div>
+
+        <div class="parameters">
+            <h3>Request Body (JSON)</h3>
+            <table>
+                <tr>
+                    <th>Property</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><code>activityId</code></td>
+                    <td>string</td>
+                    <td>Yes</td>
+                    <td>Activity identifier (max 50 chars, alphanumeric + hyphens/underscores)</td>
+                </tr>
+                <tr>
+                    <td><code>activity</code></td>
+                    <td>string</td>
+                    <td>Yes</td>
+                    <td>Activity description (max 100 chars)</td>
+                </tr>
+                <tr>
+                    <td><code>objectId</code></td>
+                    <td>string</td>
+                    <td>Yes</td>
+                    <td>Object identifier (max 50 chars, alphanumeric + hyphens/underscores)</td>
+                </tr>
+                <tr>
+                    <td><code>jobNum</code></td>
+                    <td>string</td>
+                    <td>Yes</td>
+                    <td>Job number (max 20 chars, alphanumeric + hyphens/underscores)</td>
+                </tr>
+                <tr>
+                    <td><code>host</code></td>
+                    <td>string</td>
+                    <td>No</td>
+                    <td>Host server (max 255 chars, optional)</td>
+                </tr>
+                <tr>
+                    <td><code>userId</code></td>
+                    <td>string</td>
+                    <td>Yes</td>
+                    <td>User identifier (max 50 chars, alphanumeric + dots/hyphens/underscores/@)</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="response">
+            <h3>Responses</h3>
+            <table>
+                <tr>
+                    <th>Status Code</th>
+                    <th>Description</th>
+                    <th>Content Type</th>
+                </tr>
+                <tr>
+                    <td><code>200</code></td>
+                    <td>Successful transformation with result</td>
+                    <td>application/json</td>
+                </tr>
+                <tr>
+                    <td><code>400</code></td>
+                    <td>Validation errors in request data</td>
+                    <td>application/json</td>
+                </tr>
+                <tr>
+                    <td><code>500</code></td>
+                    <td>Internal server error</td>
+                    <td>application/problem+json</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="parameters">
+            <h3>Example Request</h3>
+            <p><code>POST /api/graphics/transform</code></p>
+            <pre><code>{
+  "activityId": "ACT-2025-001",
+  "activity": "Transform to PDF",
+  "objectId": "OBJ-12345",
+  "jobNum": "JOB-789",
+  "host": "render-server.company.com",
+  "userId": "john.doe@company.com"
+}</code></pre>
+        </div>
+
+        <div class="response">
+            <h3>Example Response (200 OK)</h3>
+            <p>Returns a <code>TransformGraphicResponse</code> object containing the transformation details and status.
+            </p>
+            <pre><code>{
+  "activityId": "ACT-2025-001",
+  "activity": "Transform to PDF",
+  "parentObjectId": "OBJ-12345",
+  "newObjectId": "TRANSFORMED_OBJ-12345_20250628143022",
+  "jobNum": "JOB-789",
+  "status": "Completed",
+  "message": "Graphic transformation completed successfully for ObjectId: OBJ-12345"
+}</code></pre>
+        </div>
+
+        <div class="response">
+            <h3>Response Object (TransformGraphicResponse)</h3>
+            <table>
+                <tr>
+                    <th>Property</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><code>activityId</code></td>
+                    <td>string</td>
+                    <td>The activity identifier from the request</td>
+                </tr>
+                <tr>
+                    <td><code>activity</code></td>
+                    <td>string</td>
+                    <td>The activity description from the request</td>
+                </tr>
+                <tr>
+                    <td><code>parentObjectId</code></td>
+                    <td>string</td>
+                    <td>The original object identifier that was transformed</td>
+                </tr>
+                <tr>
+                    <td><code>newObjectId</code></td>
+                    <td>string</td>
+                    <td>The new object identifier for the transformed graphic</td>
+                </tr>
+                <tr>
+                    <td><code>jobNum</code></td>
+                    <td>string</td>
+                    <td>The job number from the request</td>
+                </tr>
+                <tr>
+                    <td><code>status</code></td>
+                    <td>string</td>
+                    <td>The transformation status (e.g., "Completed", "Failed")</td>
+                </tr>
+                <tr>
+                    <td><code>message</code></td>
+                    <td>string</td>
+                    <td>Descriptive message about the transformation result</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="response">
+            <h3>Example Validation Error Response (400 Bad Request)</h3>
+            <pre><code>{
+  "errors": [
+    {"property": "ActivityId", "message": "ActivityId is required"},
+    {"property": "UserId", "message": "UserId contains invalid characters"}
+  ]
+}</code></pre>
+        </div>
+
+        <div class="note">
+            <strong>Note:</strong> This endpoint uses the CQRS pattern with command dispatching, FluentValidation for
+            request validation, and pipeline behaviors for cross-cutting concerns like logging and exception handling.
+        </div>
+    </div>
+
+    <div class="endpoint">
+        <span class="method post">POST</span>
+        <span class="path">/api/graphics/transform/stream</span>
+
+        <div class="description">
+            <h3>Transform Graphic File Stream</h3>
+            <p>Accepts an EPS file upload and transforms it to JPG format, returning the transformed file directly as a
+                downloadable stream.
+                This endpoint processes the file in-memory and returns the result immediately. Maximum file size is
+                50MB.</p>
+        </div>
+
+        <div class="parameters">
+            <h3>Request Body (multipart/form-data)</h3>
+            <table>
+                <tr>
+                    <th>Field Name</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><code>file</code></td>
+                    <td>file</td>
+                    <td>Yes</td>
+                    <td>EPS file to transform (max 50MB, .eps extension required)</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="response">
+            <h3>Responses</h3>
+            <table>
+                <tr>
+                    <th>Status Code</th>
+                    <th>Description</th>
+                    <th>Content Type</th>
+                </tr>
+                <tr>
+                    <td><code>200</code></td>
+                    <td>Successful transformation - returns transformed JPG file</td>
+                    <td>image/jpeg</td>
+                </tr>
+                <tr>
+                    <td><code>400</code></td>
+                    <td>Invalid file format, missing file, or file too large</td>
+                    <td>application/json</td>
+                </tr>
+                <tr>
+                    <td><code>500</code></td>
+                    <td>Internal server error during transformation</td>
+                    <td>application/problem+json</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="parameters">
+            <h3>Example Usage</h3>
+            <p><code>POST /api/graphics/transform/stream</code></p>
+            <pre><code>Content-Type: multipart/form-data
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="graphic.eps"
+Content-Type: application/postscript
+
+[EPS file binary data]
+--boundary--</code></pre>
+        </div>
+
+        <div class="response">
+            <h3>Example Response (200 OK)</h3>
+            <p>Returns the transformed JPG file directly as a binary stream with appropriate headers for download.</p>
+            <pre><code>Content-Type: image/jpeg
+Content-Disposition: attachment; filename="graphic.jpg"
+
+[JPG file binary data]</code></pre>
+        </div>
+
+        <div class="response">
+            <h3>Example Error Response (400 Bad Request)</h3>
+            <pre><code>{
+  "error": "Only EPS files are supported"
+}</code></pre>
+        </div>
+
+        <div class="note">
+            <strong>Note:</strong> This endpoint processes files in-memory and returns the transformed result
+            immediately.
+            For large files or when you need a download URL instead of direct stream, use the
+            <code>/api/graphics/transform/file</code> endpoint.
+        </div>
+    </div>
+
+    <footer>
+        <p>ProFile Renderer RESTful API Services Documentation - Last Edited on June 28, 2025</p>
+    </footer>
+</body>
+
+</html>
