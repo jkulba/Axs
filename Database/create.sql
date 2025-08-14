@@ -4,20 +4,20 @@ SET QUOTED_IDENTIFIER ON;
 -- Check if database exists before creating it
 IF NOT EXISTS (SELECT name
 FROM master.dbo.sysdatabases
-WHERE name = 'AxsDb')
+WHERE name = 'axs')
 BEGIN
     -- Create a new database only if it doesn't exist
-    CREATE DATABASE AxsDb;
-    PRINT 'Database AxsDb created.';
+    CREATE DATABASE axs;
+    PRINT 'Database axs created.';
 END
 ELSE
 BEGIN
-    PRINT 'Database AxsDb already exists.';
+    PRINT 'Database axs already exists.';
 END
 GO
 
 -- Switch to the newly created database
-USE AxsDb;
+USE axs;
 GO
 
 -- Drop and recreate Activity table
@@ -27,7 +27,8 @@ WHERE object_id = OBJECT_ID(N'[dbo].[Activity]') AND type in (N'U'))
 DROP TABLE [dbo].[Activity]
 GO
 
-CREATE TABLE [dbo].[Activity](
+CREATE TABLE [dbo].[Activity]
+(
     [ActivityId] [int] IDENTITY(1,1) NOT NULL,
     [ActivityCode] [nvarchar](50) NOT NULL,
     [ActivityName] [nvarchar](100) NOT NULL,
@@ -55,7 +56,8 @@ WHERE object_id = OBJECT_ID(N'[dbo].[UserGroup]') AND type in (N'U'))
 DROP TABLE [dbo].[UserGroup]
 GO
 
-CREATE TABLE [dbo].[UserGroup](
+CREATE TABLE [dbo].[UserGroup]
+(
     [GroupId] [int] IDENTITY(1,1) NOT NULL,
     [GroupName] [nvarchar](100) NOT NULL,
     [Description] [nvarchar](500) NULL,
@@ -76,7 +78,8 @@ WHERE object_id = OBJECT_ID(N'[dbo].[AccessRequest]') AND type in (N'U'))
 DROP TABLE [dbo].[AccessRequest]
 GO
 
-CREATE TABLE [dbo].[AccessRequest](
+CREATE TABLE [dbo].[AccessRequest]
+(
     [RequestId] [int] IDENTITY(1,1) NOT NULL,
     [RequestCode] [uniqueidentifier] NOT NULL,
     [UserName] [nvarchar](50) NOT NULL,
@@ -109,7 +112,8 @@ WHERE object_id = OBJECT_ID(N'[dbo].[Authorization]') AND type in (N'U'))
 DROP TABLE [dbo].[Authorization]
 GO
 
-CREATE TABLE [dbo].[Authorization](
+CREATE TABLE [dbo].[Authorization]
+(
     [AuthorizationId] [int] IDENTITY(1,1) NOT NULL,
     [JobNumber] [int] NOT NULL,
     [UserId] [nvarchar](50) NOT NULL,
@@ -143,7 +147,8 @@ WHERE object_id = OBJECT_ID(N'[dbo].[UserGroupMember]') AND type in (N'U'))
 DROP TABLE [dbo].[UserGroupMember]
 GO
 
-CREATE TABLE [dbo].[UserGroupMember](
+CREATE TABLE [dbo].[UserGroupMember]
+(
     [GroupId] [int] NOT NULL,
     [UserId] [nvarchar](50) NOT NULL
 ) ON [PRIMARY]
@@ -163,7 +168,8 @@ WHERE object_id = OBJECT_ID(N'[dbo].[GroupAuthorization]') AND type in (N'U'))
 DROP TABLE [dbo].[GroupAuthorization]
 GO
 
-CREATE TABLE [dbo].[GroupAuthorization](
+CREATE TABLE [dbo].[GroupAuthorization]
+(
     [AuthorizationId] [int] IDENTITY(1,1) NOT NULL,
     [JobNumber] [int] NOT NULL,
     [GroupId] [int] NOT NULL,

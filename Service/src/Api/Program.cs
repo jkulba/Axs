@@ -39,7 +39,7 @@ try
         options.GetLevel = (httpContext, elapsed, ex) => LogEventLevel.Information;
         options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
         {
-            diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value);
+            diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value ?? "unknown");
             diagnosticContext.Set("RequestScheme", httpContext.Request.Scheme);
         };
     });
