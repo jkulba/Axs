@@ -86,9 +86,8 @@ CREATE TABLE [dbo].[AccessRequest]
     [JobNumber] [int] NOT NULL,
     [CycleNumber] [int] NOT NULL,
     [ActivityCode] [nvarchar](50) NULL,
-    [Application] [nvarchar](100) NULL,
-    [Version] [nvarchar](50) NULL,
-    [Machine] [nvarchar](100) NULL,
+    [ApplicationName] [nvarchar](50) NULL,
+    [Workstation] [nvarchar](50) NULL,
     [UtcCreatedAt] [datetime] NULL
 ) ON [PRIMARY]
 GO
