@@ -22,9 +22,9 @@ namespace Infrastructure.Migrations
                     JobNumber = table.Column<int>(type: "int", nullable: false),
                     CycleNumber = table.Column<int>(type: "int", nullable: false),
                     ActivityCode = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    Application = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    ApplicationName = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     Version = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    Machine = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    Workstation = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     UtcCreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>

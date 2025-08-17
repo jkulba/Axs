@@ -11,31 +11,31 @@ public class AccessRequestRepository : GenericRepository<AccessRequest>, IAccess
     {
     }
 
-    public async Task<AccessRequest?> GetByRequestCodeAsync(Guid requestCode)
+    public async Task<AccessRequest?> GetByRequestCodeAsync(Guid requestCode, CancellationToken cancellationToken = default)
     {
         return await _dbSet
-            .FirstOrDefaultAsync(ar => ar.RequestCode == requestCode);
+            .FirstOrDefaultAsync(ar => ar.RequestCode == requestCode, cancellationToken);
     }
 
-    public async Task<IEnumerable<AccessRequest>> GetByJobNumberAsync(int jobNumber)
+    public async Task<IEnumerable<AccessRequest>> GetByJobNumberAsync(int jobNumber, CancellationToken cancellationToken = default)
     {
         return await _dbSet
             .Where(ar => ar.JobNumber == jobNumber)
             .OrderByDescending(ar => ar.UtcCreatedAt)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
     }
 
-    public async Task<IEnumerable<AccessRequest>> GetByUserNameAsync(string userName)
+    public async Task<IEnumerable<AccessRequest>> GetByUserNameAsync(string userName, CancellationToken cancellationToken = default)
     {
         return await _dbSet
             .Where(ar => ar.UserName == userName)
             .OrderByDescending(ar => ar.UtcCreatedAt)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
     }
 
-    public async Task<bool> ExistsByRequestCodeAsync(Guid requestCode)
+    public async Task<bool> ExistsByRequestCodeAsync(Guid requestCode, CancellationToken cancellationToken = default)
     {
         return await _dbSet
-            .AnyAsync(ar => ar.RequestCode == requestCode);
+            .AnyAsync(ar => ar.RequestCode == requestCode, cancellationToken);
     }
 }

@@ -17,11 +17,11 @@ public class AccessRequest
 
     public string? ActivityCode { get; set; }
 
-    public string? Application { get; set; }
+    public string? ApplicationName { get; set; }
 
     public string? Version { get; set; }
 
-    public string? Machine { get; set; }
+    public string? Workstation { get; set; }
 
     public DateTime? UtcCreatedAt { get; set; }
 

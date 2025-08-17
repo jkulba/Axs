@@ -10,7 +10,6 @@
     <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="12.0.0" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="9.0.8" />
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="9.0.8" />
-    <PackageVersion Include="Microsoft.OpenApi" Version="1.6.24" />
     <PackageVersion Include="Serilog.AspNetCore" Version="9.0.0" />
     <PackageVersion Include="Serilog.Enrichers.ClientInfo" Version="2.3.0" />
     <PackageVersion Include="Serilog.Enrichers.Environment" Version="3.0.1" />
@@ -19,7 +18,6 @@
     <PackageVersion Include="Serilog.Settings.Configuration" Version="9.0.0" />
     <PackageVersion Include="Serilog.Sinks.Async" Version="2.1.0" />
     <PackageVersion Include="Serilog.Sinks.Seq" Version="9.0.0" />
-    <!-- Swagger/OpenAPI packages -->
     <PackageVersion Include="Swashbuckle.AspNetCore" Version="9.0.3" />
     <!-- Entity Framework Core packages -->
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="9.0.8" />
@@ -30,5 +28,10 @@
     <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.8" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="9.0.8" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="9.0.8" />
+    <!-- Testing packages -->
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.8" />
+    <PackageVersion Include="xunit.v3" Version="3.0.0" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.3" />
   </ItemGroup>
 </Project>

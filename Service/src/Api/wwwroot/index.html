@@ -61,6 +61,14 @@
             background-color: #49cc90;
         }
 
+        .put {
+            background-color: #fca130;
+        }
+
+        .delete {
+            background-color: #f93e3e;
+        }
+
         .path {
             font-family: monospace;
             font-size: 1.1em;
@@ -139,7 +147,7 @@
     <header>
         <h1>
             <img src="axs-logo-512.png" alt="Axs" style="vertical-align: middle; width: 50px; height: 50px;">
-            Axs Control Service Documentation
+            Axs Control Service API Documentation
         </h1>
         <p>Documentation for the Axs Control Service REST API endpoints</p>
     </header>
@@ -160,7 +168,8 @@
                 </tr>
                 <tr>
                     <td>HTTPS</td>
-                    <td><a href="http://localhost:7001/swagger/index.html" target="_blank">http://localhost:7001/swagger/index.html</a></td>
+                    <td><a href="https://localhost:7001/swagger/index.html"
+                            target="_blank">https://localhost:7001/swagger/index.html</a></td>
                 </tr>
 
             </table>
@@ -193,16 +202,71 @@
         </div>
     </div>
 
-    <h2>API Endpoints</h2>
+    <h2>Access Request API Endpoints</h2>
 
     <div class="endpoint">
         <span class="method get">GET</span>
-        <span class="path">/api/graphic-info/objectid/{objectId}</span>
+        <span class="path">/api/access-requests</span>
 
         <div class="description">
-            <h3>Get Graphic Information by Object ID</h3>
-            <p>Retrieves detailed graphic information for a specific object using its unique identifier. Returns the
-                graphic metadata including properties and rendering details.</p>
+            <h3>Get All Access Requests</h3>
+            <p>Retrieves a list of all access requests in the system. Returns an array of access request objects with
+                all their properties.</p>
+        </div>
+
+        <div class="response">
+            <h3>Responses</h3>
+            <table>
+                <tr>
+                    <th>Status Code</th>
+                    <th>Description</th>
+                    <th>Content Type</th>
+                </tr>
+                <tr>
+                    <td><code>200</code></td>
+                    <td>Successful response with access requests</td>
+                    <td>application/json</td>
+                </tr>
+                <tr>
+                    <td><code>500</code></td>
+                    <td>Internal server error</td>
+                    <td>application/problem+json</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="parameters">
+            <h3>Example Request</h3>
+            <p><code>GET /api/access-requests</code></p>
+        </div>
+
+        <div class="response">
+            <h3>Example Response (200 OK)</h3>
+            <p>Returns an array of <code>AccessRequest</code> objects.</p>
+            <pre><code>[
+  {
+    "requestId": 1,
+    "requestCode": "123e4567-e89b-12d3-a456-426614174000",
+    "userName": "john.doe",
+    "jobNumber": 12345,
+    "cycleNumber": 1,
+    "activityCode": "REVIEW",
+    "applicationName": "ProFile",
+    "version": "2025.1",
+    "workstation": "WORKSTATION-01",
+    "utcCreatedAt": "2025-08-14T10:30:00Z"
+  }
+]</code></pre>
+        </div>
+    </div>
+
+    <div class="endpoint">
+        <span class="method get">GET</span>
+        <span class="path">/api/access-requests/{id}</span>
+
+        <div class="description">
+            <h3>Get Access Request by ID</h3>
+            <p>Retrieves a single access request by its unique identifier (RequestId).</p>
         </div>
 
         <div class="parameters">
@@ -215,10 +279,10 @@
                     <th>Description</th>
                 </tr>
                 <tr>
-                    <td><code>objectId</code></td>
-                    <td>string</td>
+                    <td><code>id</code></td>
+                    <td>integer</td>
                     <td>Yes</td>
-                    <td>The unique identifier of the graphic object</td>
+                    <td>The unique identifier of the access request</td>
                 </tr>
             </table>
         </div>
@@ -233,12 +297,12 @@
                 </tr>
                 <tr>
                     <td><code>200</code></td>
-                    <td>Successful response with graphic information</td>
+                    <td>Successful response with access request</td>
                     <td>application/json</td>
                 </tr>
                 <tr>
                     <td><code>404</code></td>
-                    <td>Graphic info not found for the specified object ID</td>
+                    <td>Access request not found</td>
                     <td>application/problem+json</td>
                 </tr>
                 <tr>
@@ -251,29 +315,77 @@
 
         <div class="parameters">
             <h3>Example Request</h3>
-            <p><code>GET /api/graphic-info/objectid/12345</code></p>
-        </div>
-
-        <div class="response">
-            <h3>Example Response (200 OK)</h3>
-            <p>Returns a <code>GraphicInfo</code> object containing the graphic metadata and properties.</p>
-        </div>
-
-        <div class="note">
-            <strong>Note:</strong> This endpoint uses the CQRS pattern with query dispatching for retrieving graphic
-            information.
+            <p><code>GET /api/access-requests/1</code></p>
         </div>
     </div>
 
     <div class="endpoint">
         <span class="method get">GET</span>
-        <span class="path">/api/graphic-info/jobnumber/{jobNumber}</span>
+        <span class="path">/api/access-requests/by-request-code/{requestCode}</span>
 
         <div class="description">
-            <h3>Get Graphic Information by Job Number</h3>
-            <p>Retrieves detailed graphic information for a specific job number using its unique identifier. Returns the
-                graphic metadata including properties and rendering details for all graphics associated with the job.
-            </p>
+            <h3>Get Access Request by Request Code</h3>
+            <p>Retrieves a single access request by its unique request code (GUID).</p>
+        </div>
+
+        <div class="parameters">
+            <h3>Path Parameters</h3>
+            <table>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><code>requestCode</code></td>
+                    <td>GUID</td>
+                    <td>Yes</td>
+                    <td>The unique request code of the access request</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="response">
+            <h3>Responses</h3>
+            <table>
+                <tr>
+                    <th>Status Code</th>
+                    <th>Description</th>
+                    <th>Content Type</th>
+                </tr>
+                <tr>
+                    <td><code>200</code></td>
+                    <td>Successful response with access request</td>
+                    <td>application/json</td>
+                </tr>
+                <tr>
+                    <td><code>404</code></td>
+                    <td>Access request not found</td>
+                    <td>application/problem+json</td>
+                </tr>
+                <tr>
+                    <td><code>500</code></td>
+                    <td>Internal server error</td>
+                    <td>application/problem+json</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="parameters">
+            <h3>Example Request</h3>
+            <p><code>GET /api/access-requests/by-request-code/123e4567-e89b-12d3-a456-426614174000</code></p>
+        </div>
+    </div>
+
+    <div class="endpoint">
+        <span class="method get">GET</span>
+        <span class="path">/api/access-requests/by-job-number/{jobNumber}</span>
+
+        <div class="description">
+            <h3>Get Access Requests by Job Number</h3>
+            <p>Retrieves all access requests associated with a specific job number. Returns them ordered by creation
+                date (most recent first).</p>
         </div>
 
         <div class="parameters">
@@ -287,9 +399,9 @@
                 </tr>
                 <tr>
                     <td><code>jobNumber</code></td>
-                    <td>string</td>
+                    <td>integer</td>
                     <td>Yes</td>
-                    <td>The unique job number identifier</td>
+                    <td>The job number to filter access requests by</td>
                 </tr>
             </table>
         </div>
@@ -304,12 +416,227 @@
                 </tr>
                 <tr>
                     <td><code>200</code></td>
-                    <td>Successful response with collection of graphic information</td>
+                    <td>Successful response with access requests (may be empty array)</td>
                     <td>application/json</td>
+                </tr>
+                <tr>
+                    <td><code>500</code></td>
+                    <td>Internal server error</td>
+                    <td>application/problem+json</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="parameters">
+            <h3>Example Request</h3>
+            <p><code>GET /api/access-requests/by-job-number/12345</code></p>
+        </div>
+    </div>
+
+    <div class="endpoint">
+        <span class="method get">GET</span>
+        <span class="path">/api/access-requests/by-user/{userName}</span>
+
+        <div class="description">
+            <h3>Get Access Requests by User Name</h3>
+            <p>Retrieves all access requests associated with a specific user name. Returns them ordered by creation date
+                (most recent first).</p>
+        </div>
+
+        <div class="parameters">
+            <h3>Path Parameters</h3>
+            <table>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><code>userName</code></td>
+                    <td>string</td>
+                    <td>Yes</td>
+                    <td>The user name to filter access requests by</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="response">
+            <h3>Responses</h3>
+            <table>
+                <tr>
+                    <th>Status Code</th>
+                    <th>Description</th>
+                    <th>Content Type</th>
+                </tr>
+                <tr>
+                    <td><code>200</code></td>
+                    <td>Successful response with access requests (may be empty array)</td>
+                    <td>application/json</td>
+                </tr>
+                <tr>
+                    <td><code>500</code></td>
+                    <td>Internal server error</td>
+                    <td>application/problem+json</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="parameters">
+            <h3>Example Request</h3>
+            <p><code>GET /api/access-requests/by-user/john.doe</code></p>
+        </div>
+    </div>
+
+    <div class="endpoint">
+        <span class="method post">POST</span>
+        <span class="path">/api/access-requests</span>
+
+        <div class="description">
+            <h3>Create New Access Request</h3>
+            <p>Creates a new access request using the CreateAccessRequestCommand. The command uses a simplified
+                structure
+                focused on essential creation parameters. If RequestCode is not provided or is empty, a new GUID will be
+                generated
+                automatically. If UtcCreatedAt is not provided, the current UTC time will be used.</p>
+        </div>
+
+        <div class="parameters">
+            <h3>Request Body (JSON) - CreateAccessRequestCommand</h3>
+            <table>
+                <tr>
+                    <th>Property</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><code>requestCode</code></td>
+                    <td>GUID</td>
+                    <td>No</td>
+                    <td>Auto-generated if not provided or empty</td>
+                </tr>
+                <tr>
+                    <td><code>userName</code></td>
+                    <td>string</td>
+                    <td>Yes</td>
+                    <td>The user requesting access (max 100 chars, alphanumeric with ._@-)</td>
+                </tr>
+                <tr>
+                    <td><code>jobNumber</code></td>
+                    <td>string</td>
+                    <td>Yes</td>
+                    <td>The job number for the request (max 50 chars, must be valid positive integer)</td>
+                </tr>
+                <tr>
+                    <td><code>utcCreatedAt</code></td>
+                    <td>datetime</td>
+                    <td>No</td>
+                    <td>Auto-set to current UTC time if not provided (cannot be future-dated)</td>
+                </tr>
+            </table>
+            <p><em>Note: The Command uses FluentValidation to ensure data integrity before processing.</em></p>
+        </div>
+
+        <div class="response">
+            <h3>Responses</h3>
+            <table>
+                <tr>
+                    <th>Status Code</th>
+                    <th>Description</th>
+                    <th>Content Type</th>
+                </tr>
+                <tr>
+                    <td><code>201</code></td>
+                    <td>Access request created successfully</td>
+                    <td>application/json</td>
+                </tr>
+                <tr>
+                    <td><code>400</code></td>
+                    <td>Invalid request data</td>
+                    <td>application/problem+json</td>
+                </tr>
+                <tr>
+                    <td><code>500</code></td>
+                    <td>Internal server error</td>
+                    <td>application/problem+json</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="parameters">
+            <h3>Example Request - CreateAccessRequestCommand</h3>
+            <p><code>POST /api/access-requests</code></p>
+            <pre><code>{
+  "userName": "john.doe",
+  "jobNumber": "12345"
+}</code></pre>
+            <p><em>Minimal command example - RequestCode and UtcCreatedAt will be auto-generated.</em></p>
+        </div>
+
+        <div class="response">
+            <h3>Example Response (201 Created)</h3>
+            <pre><code>{
+  "requestId": 1,
+  "requestCode": "123e4567-e89b-12d3-a456-426614174000",
+  "userName": "john.doe",
+  "jobNumber": 12345,
+  "cycleNumber": 1,
+  "activityCode": "REVIEW",
+  "applicationName": "ProFile",
+  "version": "2025.1",
+  "workstation": "WORKSTATION-01",
+  "utcCreatedAt": "2025-08-14T10:30:00Z"
+}</code></pre>
+        </div>
+    </div>
+
+
+
+    <div class="endpoint">
+        <span class="method delete">DELETE</span>
+        <span class="path">/api/access-requests/{id}</span>
+
+        <div class="description">
+            <h3>Delete Access Request</h3>
+            <p>Deletes an existing access request by its ID using the DeleteAccessRequestCommand.
+                The command returns the number of affected rows for confirmation.</p>
+        </div>
+
+        <div class="parameters">
+            <h3>Path Parameters</h3>
+            <table>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Type</th>
+                    <th>Required</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><code>id</code></td>
+                    <td>integer</td>
+                    <td>Yes</td>
+                    <td>The unique identifier of the access request to delete</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="response">
+            <h3>Responses</h3>
+            <table>
+                <tr>
+                    <th>Status Code</th>
+                    <th>Description</th>
+                    <th>Content Type</th>
+                </tr>
+                <tr>
+                    <td><code>204</code></td>
+                    <td>Access request deleted successfully</td>
+                    <td>-</td>
                 </tr>
                 <tr>
                     <td><code>404</code></td>
-                    <td>Graphic info not found for the specified job number</td>
+                    <td>Access request not found</td>
                     <td>application/problem+json</td>
                 </tr>
                 <tr>
@@ -322,76 +649,33 @@
 
         <div class="parameters">
             <h3>Example Request</h3>
-            <p><code>GET /api/graphic-info/jobnumber/JOB-2025-001</code></p>
-        </div>
-
-        <div class="response">
-            <h3>Example Response (200 OK)</h3>
-            <p>Returns a collection of <code>GraphicInfo</code> objects containing the graphic metadata and properties
-                for all graphics associated with the specified job number.</p>
-        </div>
-
-        <div class="note">
-            <strong>Note:</strong> This endpoint uses the CQRS pattern with query dispatching for retrieving graphic
-            information and returns multiple results.
+            <p><code>DELETE /api/access-requests/1</code></p>
         </div>
     </div>
 
     <div class="endpoint">
-        <span class="method post">POST</span>
-        <span class="path">/api/graphics/transform</span>
+        <span class="method get">GET</span>
+        <span class="path">/api/access-requests/exists/{requestCode}</span>
 
         <div class="description">
-            <h3>Transform Graphic</h3>
-            <p>Processes a graphic transformation request with validation and returns the result. All required fields
-                must be provided and meet the specified format requirements. This endpoint uses FluentValidation for
-                comprehensive request validation.</p>
+            <h3>Check if Access Request Exists</h3>
+            <p>Checks if an access request exists with the specified request code. Returns a boolean value.</p>
         </div>
 
         <div class="parameters">
-            <h3>Request Body (JSON)</h3>
+            <h3>Path Parameters</h3>
             <table>
                 <tr>
-                    <th>Property</th>
+                    <th>Parameter</th>
                     <th>Type</th>
                     <th>Required</th>
                     <th>Description</th>
                 </tr>
                 <tr>
-                    <td><code>activityId</code></td>
-                    <td>string</td>
+                    <td><code>requestCode</code></td>
+                    <td>GUID</td>
                     <td>Yes</td>
-                    <td>Activity identifier (max 50 chars, alphanumeric + hyphens/underscores)</td>
-                </tr>
-                <tr>
-                    <td><code>activity</code></td>
-                    <td>string</td>
-                    <td>Yes</td>
-                    <td>Activity description (max 100 chars)</td>
-                </tr>
-                <tr>
-                    <td><code>objectId</code></td>
-                    <td>string</td>
-                    <td>Yes</td>
-                    <td>Object identifier (max 50 chars, alphanumeric + hyphens/underscores)</td>
-                </tr>
-                <tr>
-                    <td><code>jobNum</code></td>
-                    <td>string</td>
-                    <td>Yes</td>
-                    <td>Job number (max 20 chars, alphanumeric + hyphens/underscores)</td>
-                </tr>
-                <tr>
-                    <td><code>host</code></td>
-                    <td>string</td>
-                    <td>No</td>
-                    <td>Host server (max 255 chars, optional)</td>
-                </tr>
-                <tr>
-                    <td><code>userId</code></td>
-                    <td>string</td>
-                    <td>Yes</td>
-                    <td>User identifier (max 50 chars, alphanumeric + dots/hyphens/underscores/@)</td>
+                    <td>The request code to check for existence</td>
                 </tr>
             </table>
         </div>
@@ -406,12 +690,7 @@
                 </tr>
                 <tr>
                     <td><code>200</code></td>
-                    <td>Successful transformation with result</td>
-                    <td>application/json</td>
-                </tr>
-                <tr>
-                    <td><code>400</code></td>
-                    <td>Validation errors in request data</td>
+                    <td>Returns boolean indicating existence</td>
                     <td>application/json</td>
                 </tr>
                 <tr>
@@ -424,189 +703,152 @@
 
         <div class="parameters">
             <h3>Example Request</h3>
-            <p><code>POST /api/graphics/transform</code></p>
-            <pre><code>{
-  "activityId": "ACT-2025-001",
-  "activity": "Transform to PDF",
-  "objectId": "OBJ-12345",
-  "jobNum": "JOB-789",
-  "host": "render-server.company.com",
-  "userId": "john.doe@company.com"
-}</code></pre>
+            <p><code>GET /api/access-requests/exists/123e4567-e89b-12d3-a456-426614174000</code></p>
         </div>
 
         <div class="response">
             <h3>Example Response (200 OK)</h3>
-            <p>Returns a <code>TransformGraphicResponse</code> object containing the transformation details and status.
-            </p>
-            <pre><code>{
-  "activityId": "ACT-2025-001",
-  "activity": "Transform to PDF",
-  "parentObjectId": "OBJ-12345",
-  "newObjectId": "TRANSFORMED_OBJ-12345_20250628143022",
-  "jobNum": "JOB-789",
-  "status": "Completed",
-  "message": "Graphic transformation completed successfully for ObjectId: OBJ-12345"
-}</code></pre>
-        </div>
-
-        <div class="response">
-            <h3>Response Object (TransformGraphicResponse)</h3>
-            <table>
-                <tr>
-                    <th>Property</th>
-                    <th>Type</th>
-                    <th>Description</th>
-                </tr>
-                <tr>
-                    <td><code>activityId</code></td>
-                    <td>string</td>
-                    <td>The activity identifier from the request</td>
-                </tr>
-                <tr>
-                    <td><code>activity</code></td>
-                    <td>string</td>
-                    <td>The activity description from the request</td>
-                </tr>
-                <tr>
-                    <td><code>parentObjectId</code></td>
-                    <td>string</td>
-                    <td>The original object identifier that was transformed</td>
-                </tr>
-                <tr>
-                    <td><code>newObjectId</code></td>
-                    <td>string</td>
-                    <td>The new object identifier for the transformed graphic</td>
-                </tr>
-                <tr>
-                    <td><code>jobNum</code></td>
-                    <td>string</td>
-                    <td>The job number from the request</td>
-                </tr>
-                <tr>
-                    <td><code>status</code></td>
-                    <td>string</td>
-                    <td>The transformation status (e.g., "Completed", "Failed")</td>
-                </tr>
-                <tr>
-                    <td><code>message</code></td>
-                    <td>string</td>
-                    <td>Descriptive message about the transformation result</td>
-                </tr>
-            </table>
-        </div>
-
-        <div class="response">
-            <h3>Example Validation Error Response (400 Bad Request)</h3>
-            <pre><code>{
-  "errors": [
-    {"property": "ActivityId", "message": "ActivityId is required"},
-    {"property": "UserId", "message": "UserId contains invalid characters"}
-  ]
-}</code></pre>
-        </div>
-
-        <div class="note">
-            <strong>Note:</strong> This endpoint uses the CQRS pattern with command dispatching, FluentValidation for
-            request validation, and pipeline behaviors for cross-cutting concerns like logging and exception handling.
+            <pre><code>true</code></pre>
         </div>
     </div>
 
-    <div class="endpoint">
-        <span class="method post">POST</span>
-        <span class="path">/api/graphics/transform/stream</span>
+    <h2>Architecture Overview</h2>
 
-        <div class="description">
-            <h3>Transform Graphic File Stream</h3>
-            <p>Accepts an EPS file upload and transforms it to JPG format, returning the transformed file directly as a
-                downloadable stream.
-                This endpoint processes the file in-memory and returns the result immediately. Maximum file size is
-                50MB.</p>
-        </div>
+    <div class="note">
+        <strong>CQRS (Command Query Responsibility Segregation) Architecture:</strong> This API implements the CQRS
+        pattern
+        to separate read (Query) and write (Command) operations, providing better scalability, maintainability, and
+        performance.
 
-        <div class="parameters">
-            <h3>Request Body (multipart/form-data)</h3>
-            <table>
-                <tr>
-                    <th>Field Name</th>
-                    <th>Type</th>
-                    <th>Required</th>
-                    <th>Description</th>
-                </tr>
-                <tr>
-                    <td><code>file</code></td>
-                    <td>file</td>
-                    <td>Yes</td>
-                    <td>EPS file to transform (max 50MB, .eps extension required)</td>
-                </tr>
-            </table>
-        </div>
+        <h3>Key Components:</h3>
+        <ul>
+            <li><strong>Commands</strong>: Handle write operations (Create, Delete) through the Command pipeline</li>
+            <li><strong>Queries</strong>: Handle read operations (Get, Exists) through the Query pipeline</li>
+            <li><strong>Handlers</strong>: Execute specific Commands or Queries with dedicated business logic</li>
+            <li><strong>Dispatchers</strong>: Route Commands and Queries to their respective handlers</li>
+            <li><strong>Pipeline Behaviors</strong>: Cross-cutting concerns like validation, performance monitoring, and
+                logging</li>
+        </ul>
 
-        <div class="response">
-            <h3>Responses</h3>
-            <table>
-                <tr>
-                    <th>Status Code</th>
-                    <th>Description</th>
-                    <th>Content Type</th>
-                </tr>
-                <tr>
-                    <td><code>200</code></td>
-                    <td>Successful transformation - returns transformed JPG file</td>
-                    <td>image/jpeg</td>
-                </tr>
-                <tr>
-                    <td><code>400</code></td>
-                    <td>Invalid file format, missing file, or file too large</td>
-                    <td>application/json</td>
-                </tr>
-                <tr>
-                    <td><code>500</code></td>
-                    <td>Internal server error during transformation</td>
-                    <td>application/problem+json</td>
-                </tr>
-            </table>
-        </div>
+        <h3>Available Commands:</h3>
+        <ul>
+            <li><strong>CreateAccessRequestCommand</strong>: Creates new access requests with automatic GUID generation
+            </li>
+            <li><strong>DeleteAccessRequestCommand</strong>: Deletes existing access requests by ID</li>
+        </ul>
 
-        <div class="parameters">
-            <h3>Example Usage</h3>
-            <p><code>POST /api/graphics/transform/stream</code></p>
-            <pre><code>Content-Type: multipart/form-data
+        <h3>Available Queries:</h3>
+        <ul>
+            <li><strong>GetAccessRequestsQuery</strong>: Retrieves all access requests</li>
+            <li><strong>GetAccessRequestByIdQuery</strong>: Retrieves single access request by ID</li>
+            <li><strong>GetAccessRequestByRequestCodeQuery</strong>: Retrieves single access request by GUID</li>
+            <li><strong>GetAccessRequestsByJobNumberQuery</strong>: Retrieves access requests filtered by job number
+            </li>
+            <li><strong>GetAccessRequestsByUserNameQuery</strong>: Retrieves access requests filtered by user name</li>
+            <li><strong>ExistsAccessRequestByRequestCodeQuery</strong>: Checks existence by request code</li>
+        </ul>
 
---boundary
-Content-Disposition: form-data; name="file"; filename="graphic.eps"
-Content-Type: application/postscript
+        <h3>Pipeline Behaviors:</h3>
+        <ul>
+            <li><strong>Validation Behaviors</strong>: FluentValidation integration for Commands and Queries</li>
+            <li><strong>Performance Behaviors</strong>: Performance monitoring with configurable thresholds</li>
+            <li><strong>Error Handling</strong>: Comprehensive error handling and logging throughout the pipeline</li>
+        </ul>
 
-[EPS file binary data]
---boundary--</code></pre>
-        </div>
+        <h3>Benefits of CQRS Implementation:</h3>
+        <ul>
+            <li><strong>Separation of Concerns</strong>: Clear distinction between read and write operations</li>
+            <li><strong>Scalability</strong>: Independent optimization of read and write operations</li>
+            <li><strong>Maintainability</strong>: Focused handlers with single responsibilities</li>
+            <li><strong>Extensibility</strong>: Easy addition of cross-cutting behaviors through pipeline</li>
+            <li><strong>Testability</strong>: Individual handlers can be unit tested independently</li>
+        </ul>
+    </div>
 
-        <div class="response">
-            <h3>Example Response (200 OK)</h3>
-            <p>Returns the transformed JPG file directly as a binary stream with appropriate headers for download.</p>
-            <pre><code>Content-Type: image/jpeg
-Content-Disposition: attachment; filename="graphic.jpg"
+    <h2>Implementation Details</h2>
 
-[JPG file binary data]</code></pre>
-        </div>
+    <div class="note">
+        <strong>CQRS Implementation Stack:</strong>
 
-        <div class="response">
-            <h3>Example Error Response (400 Bad Request)</h3>
-            <pre><code>{
-  "error": "Only EPS files are supported"
-}</code></pre>
-        </div>
+        <h3>Minimal API Integration:</h3>
+        <ul>
+            <li><strong>Endpoint Registration</strong>: All endpoints are registered as Minimal APIs in
+                <code>AccessRequestEndpoints.cs</code>
+            </li>
+            <li><strong>Dispatcher Injection</strong>: Each endpoint receives <code>ICommandDispatcher</code> or
+                <code>IQueryDispatcher</code> via dependency injection
+            </li>
+            <li><strong>Result Handling</strong>: Commands and Queries return <code>Result&lt;T&gt;</code> objects for
+                consistent error handling</li>
+            <li><strong>HTTP Response Mapping</strong>: Results are automatically mapped to appropriate HTTP status
+                codes</li>
+        </ul>
 
-        <div class="note">
-            <strong>Note:</strong> This endpoint processes files in-memory and returns the transformed result
-            immediately.
-            For large files or when you need a download URL instead of direct stream, use the
-            <code>/api/graphics/transform/file</code> endpoint.
-        </div>
+        <h3>Command Processing Pipeline:</h3>
+        <ol>
+            <li><strong>Command Reception</strong>: Minimal API endpoint receives command object</li>
+            <li><strong>Dispatcher Invocation</strong>:
+                <code>ICommandDispatcher.Dispatch&lt;TCommand, TResult&gt;()</code> called
+            </li>
+            <li><strong>Validation Behavior</strong>: FluentValidation rules executed via
+                <code>CommandValidationBehavior</code>
+            </li>
+            <li><strong>Performance Monitoring</strong>: Execution time tracked via
+                <code>CommandPerformanceBehavior</code>
+            </li>
+            <li><strong>Handler Execution</strong>: Specific <code>ICommandHandler&lt;TCommand, TResult&gt;</code>
+                processes the command</li>
+            <li><strong>Result Return</strong>: <code>Result&lt;T&gt;</code> returned through pipeline and converted to
+                HTTP response</li>
+        </ol>
+
+        <h3>Query Processing Pipeline:</h3>
+        <ol>
+            <li><strong>Query Reception</strong>: Minimal API endpoint creates query object from parameters</li>
+            <li><strong>Dispatcher Invocation</strong>: <code>IQueryDispatcher.Dispatch&lt;TQuery, TResult&gt;()</code>
+                called</li>
+            <li><strong>Validation Behavior</strong>: Query validation via <code>QueryValidationBehavior</code> (if
+                applicable)</li>
+            <li><strong>Performance Monitoring</strong>: Execution time tracked via
+                <code>QueryPerformanceBehavior</code>
+            </li>
+            <li><strong>Handler Execution</strong>: Specific <code>IQueryHandler&lt;TQuery, TResult&gt;</code> processes
+                the query</li>
+            <li><strong>Result Return</strong>: <code>Result&lt;T&gt;</code> returned through pipeline and converted to
+                HTTP response</li>
+        </ol>
+
+        <h3>Validation Integration:</h3>
+        <ul>
+            <li><strong>FluentValidation 12.0.0</strong>: Comprehensive validation rules for all commands</li>
+            <li><strong>Automatic GUID Generation</strong>: Service generates RequestCode if not provided in
+                CreateAccessRequestCommand</li>
+            <li><strong>Business Rule Validation</strong>: Custom validation rules for JobNumber format and UserName
+                patterns</li>
+            <li><strong>DateTime Validation</strong>: Prevents future-dated timestamps with clock skew tolerance</li>
+        </ul>
+    </div>
+
+    <div class="note">
+        <strong>Note:</strong> All endpoints use the CQRS pattern with Command/Query dispatchers for data operations and
+        include comprehensive error
+        handling and logging. The AccessRequest entity includes the following data model:
+        <ul>
+            <li><strong>RequestId</strong>: Primary key (integer)</li>
+            <li><strong>RequestCode</strong>: Unique GUID identifier</li>
+            <li><strong>UserName</strong>: User requesting access (required)</li>
+            <li><strong>JobNumber</strong>: Associated job number (integer)</li>
+            <li><strong>CycleNumber</strong>: Job cycle number (integer)</li>
+            <li><strong>ActivityCode</strong>: Optional activity code</li>
+            <li><strong>Application</strong>: Optional application name</li>
+            <li><strong>Version</strong>: Optional application version</li>
+            <li><strong>Workstation</strong>: Optional workstation name</li>
+            <li><strong>UtcCreatedAt</strong>: Creation timestamp (UTC)</li>
+        </ul>
     </div>
 
     <footer>
-        <p>ProFile Renderer RESTful API Services Documentation - Last Edited on June 28, 2025</p>
+        <p>Axs Control Service API Documentation - Last Updated on August 15, 2025</p>
     </footer>
 </body>
 

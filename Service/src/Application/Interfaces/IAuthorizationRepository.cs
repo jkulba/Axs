@@ -2,7 +2,7 @@ namespace Application.Interfaces;
 
 public interface IAuthorizationRepository
 {
-    Task<AuthorizationResult> CheckUserAuthorization(string userId, int jobNumber, int activityId);
+    Task<AuthorizationResult> CheckUserAuthorization(string userId, int jobNumber, int activityId, CancellationToken cancellationToken = default);
 }
 
 public class AuthorizationResult

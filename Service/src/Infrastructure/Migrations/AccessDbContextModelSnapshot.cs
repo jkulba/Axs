@@ -17,7 +17,7 @@ namespace Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.8")
+                .HasAnnotation("ProductVersion", "9.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -34,7 +34,7 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("Application")
+                    b.Property<string>("ApplicationName")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
@@ -43,10 +43,6 @@ namespace Infrastructure.Migrations
 
                     b.Property<int>("JobNumber")
                         .HasColumnType("int");
-
-                    b.Property<string>("Machine")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
 
                     b.Property<Guid>("RequestCode")
                         .HasColumnType("uniqueidentifier");
@@ -63,6 +59,10 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("Workstation")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
                     b.HasKey("RequestId");
 
                     b.HasIndex("JobNumber");
@@ -72,7 +72,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("UserName");
 
-                    b.ToTable("AccessRequests");
+                    b.ToTable("AccessRequests", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Activity", b =>
@@ -105,7 +105,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("ActivityCode")
                         .IsUnique();
 
-                    b.ToTable("Activities");
+                    b.ToTable("Activities", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Authorization", b =>
@@ -151,7 +151,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("JobNumber", "UserId", "ActivityId")
                         .IsUnique();
 
-                    b.ToTable("Authorizations");
+                    b.ToTable("Authorizations", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.GroupAuthorization", b =>
@@ -197,7 +197,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("JobNumber", "GroupId", "ActivityId")
                         .IsUnique();
 
-                    b.ToTable("GroupAuthorizations");
+                    b.ToTable("GroupAuthorizations", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.UserGroup", b =>
@@ -226,7 +226,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("GroupName")
                         .IsUnique();
 
-                    b.ToTable("UserGroups");
+                    b.ToTable("UserGroups", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.UserGroupMember", b =>
@@ -240,7 +240,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("GroupId", "UserId");
 
-                    b.ToTable("UserGroupMembers");
+                    b.ToTable("UserGroupMembers", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Authorization", b =>

@@ -1,0 +1,14 @@
+### Test validation errors
+POST http://localhost:5277/api/access-requests
+Content-Type: application/json
+
+{
+  "requestCode": "550e8400-e29b-41d4-a716-446655440000",
+  "userName": "",
+  "jobNumber": 0,
+  "cycleNumber": 1,
+  "activityCode": "",
+  "workstation": "",
+  "applicationName": "TestApp",
+  "utcCreatedAt": "2025-08-15T10:30:00Z"
+}

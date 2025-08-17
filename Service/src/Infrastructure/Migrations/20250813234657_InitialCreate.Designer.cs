@@ -37,7 +37,7 @@ namespace Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("Application")
+                    b.Property<string>("ApplicationName")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
@@ -47,7 +47,7 @@ namespace Infrastructure.Migrations
                     b.Property<int>("JobNumber")
                         .HasColumnType("int");
 
-                    b.Property<string>("Machine")
+                    b.Property<string>("Workstation")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 

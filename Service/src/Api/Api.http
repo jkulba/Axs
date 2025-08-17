@@ -1,4 +1,4 @@
-@Api_HostAddress = http://localhost:7001
+@Api_HostAddress = http://localhost:5277
 
 # Get AccessRequest by ID
 GET {{Api_HostAddress}}/api/AccessRequests/5
@@ -13,17 +13,37 @@ Accept: application/json
 ###
 
 # Create AccessRequest
-POST {{Api_HostAddress}}/api/AccessRequests
+POST {{Api_HostAddress}}/api/access-requests
 Content-Type: application/json
 Accept: application/json
 
 {
-  "userName": "scarlett",
-  "employeeNum": "EMP001",
-  "userId": "sjohansson",
-  "accessGroupId": 1,
-  "requestReason": "Need access for project work",
-  "requestedByUserId": "manager456"
+  "requestCode": "550e8400-e29b-41d4-a716-446655440000",
+  "userName": "john.doe",
+  "jobNumber": 12345,
+  "cycleNumber": 1,
+  "activityCode": "TEST",
+  "workstation": "WS001",
+  "applicationName": "TestApp",
+  "utcCreatedAt": "2025-08-15T10:30:00Z"
+}
+
+###
+
+# Create AccessRequest with validation errors - empty required fields
+POST {{Api_HostAddress}}/api/access-requests
+Content-Type: application/json
+Accept: application/json
+
+{
+  "requestCode": "550e8400-e29b-41d4-a716-446655440000",
+  "userName": "",
+  "jobNumber": 0,
+  "cycleNumber": 1,
+  "activityCode": "",
+  "workstation": "",
+  "applicationName": "TestApp",
+  "utcCreatedAt": "2025-08-15T10:30:00Z"
 }
 
 ###
