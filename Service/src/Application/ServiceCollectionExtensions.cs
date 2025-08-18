@@ -1,5 +1,7 @@
 using Application.AccessRequests.Commands;
 using Application.AccessRequests.Queries;
+using Application.Activities.Commands;
+using Application.Activities.Queries;
 using Application.Authorization.Commands;
 using Application.Behaviors;
 using Application.Common;
@@ -39,10 +41,17 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IQueryHandler<GetAccessRequestByRequestCodeQuery, Result<AccessRequest>>, GetAccessRequestByRequestCodeQueryHandler>();
         services.AddScoped<IQueryHandler<ExistsAccessRequestByRequestCodeQuery, Result<bool>>, ExistsAccessRequestByRequestCodeQueryHandler>();
 
+        services.AddScoped<IQueryHandler<GetActivityByIdQuery, Result<Activity>>, GetActivityByIdQueryHandler>();
+
+
         // Register Command Handlers here
         services.AddScoped<ICommandHandler<CreateAccessRequestCommand, Result<AccessRequest>>, CreateAccessRequestCommandHandler>();
         services.AddScoped<ICommandHandler<DeleteAccessRequestCommand, Result<int>>, DeleteAccessRequestCommandHandler>();
         services.AddScoped<ICommandHandler<VerifyAccessCommand, Result<AuthorizationResult>>, VerifyAccessCommandHandler>();
+
+        services.AddScoped<ICommandHandler<CreateActivityCommand, Result<Activity>>, CreateActivityCommandHandler>();
+        services.AddScoped<ICommandHandler<UpdateActivityCommand, Result<Activity>>, UpdateActivityCommandHandler>();
+
 
         return services;
     }
