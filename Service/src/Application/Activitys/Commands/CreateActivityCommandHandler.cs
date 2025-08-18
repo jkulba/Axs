@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Application.Common;
 using Application.Interfaces;
 using Domain.Common;
@@ -6,7 +5,7 @@ using Domain.Entities;
 
 namespace Application.Activitys.Commands;
 
-public class CreateActivityCommandHandler : ICommandHandler<CreateActivityCommand, Result<Domain.Entities.Activity>>
+public class CreateActivityCommandHandler : ICommandHandler<CreateActivityCommand, Result<Activity>>
 {
     private readonly IActivityRepository _repository;
 
@@ -15,9 +14,9 @@ public class CreateActivityCommandHandler : ICommandHandler<CreateActivityComman
         _repository = repository;
     }
 
-    public async Task<Result<Domain.Entities.Activity>> Handle(CreateActivityCommand command, CancellationToken cancellationToken)
+    public async Task<Result<Activity>> Handle(CreateActivityCommand command, CancellationToken cancellationToken)
     {
-        var activity = new Domain.Entities.Activity
+        var activity = new Activity
         {
             ActivityCode = command.ActivityCode,
             ActivityName = command.ActivityName,
@@ -26,7 +25,7 @@ public class CreateActivityCommandHandler : ICommandHandler<CreateActivityComman
         };
 
         await _repository.AddAsync(activity);
-        return Result<Domain.Entities.Activity>.Success(activity);
+        return Result<Activity>.Success(activity);
     }
 }
 
