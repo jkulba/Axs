@@ -50,9 +50,6 @@ builder.Host.UseSerilog((context, services, configuration) =>
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddApplicationServices();
 
-// Add FluentValidation
-builder.Services.AddValidatorsFromAssemblyContaining<Program>();
-
 // Configure OpenAPI/Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -85,6 +82,7 @@ app.UseDefaultFiles();
 app.UseStaticFiles();
 
 app.MapAccessRequestEndpoints();
+app.MapActivityEndpoints();
 app.MapAuthorizationEndpoints();
 
 app.MapGet("/api/version", async () =>

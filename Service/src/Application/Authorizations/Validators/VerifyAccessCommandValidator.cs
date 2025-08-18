@@ -1,11 +1,11 @@
-using Api.Contracts;
+using Application.Authorization.Commands;
 using FluentValidation;
 
-namespace Api.Validators;
+namespace Application.Authorization.Validators;
 
-public class VerifyAccessRequestValidator : AbstractValidator<VerifyAccessRequest>
+public class VerifyAccessCommandValidator : AbstractValidator<VerifyAccessCommand>
 {
-    public VerifyAccessRequestValidator()
+    public VerifyAccessCommandValidator()
     {
         RuleFor(x => x.ProfileUserName)
             .NotEmpty()
@@ -32,5 +32,9 @@ public class VerifyAccessRequestValidator : AbstractValidator<VerifyAccessReques
             .WithMessage("ApplicationName is required.")
             .MaximumLength(100)
             .WithMessage("ApplicationName cannot exceed 100 characters.");
+
+        RuleFor(x => x.ActivityCode)
+            .MaximumLength(50)
+            .WithMessage("ActivityCode cannot exceed 50 characters when provided.");
     }
 }

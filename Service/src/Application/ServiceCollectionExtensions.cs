@@ -42,7 +42,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IQueryHandler<ExistsAccessRequestByRequestCodeQuery, Result<bool>>, ExistsAccessRequestByRequestCodeQueryHandler>();
 
         services.AddScoped<IQueryHandler<GetActivityByIdQuery, Result<Activity>>, GetActivityByIdQueryHandler>();
-
+        services.AddScoped<IQueryHandler<GetActivitiesQuery, Result<IEnumerable<Activity>>>, GetActivitiesQueryHandler>();
 
         // Register Command Handlers here
         services.AddScoped<ICommandHandler<CreateAccessRequestCommand, Result<AccessRequest>>, CreateAccessRequestCommandHandler>();

@@ -72,3 +72,13 @@ Accept: application/json
 
 ###
 
+PUT {{Api_HostAddress}}/api/activities/1
+Content-Type: application/json
+
+{
+  "activityId": 1,
+  "activityCode": "ACT001",
+  "activityName": "Updated Activity Name",
+  "description": "Updated description",
+  "isActive": true
+}

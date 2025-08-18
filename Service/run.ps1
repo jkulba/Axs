@@ -19,5 +19,5 @@ $env:ASPNETCORE_URLS = "http://localhost:$port"
 Write-Host "Starting development server on port $port in $env:ASPNETCORE_ENVIRONMENT mode"
 
 # Start the development server in a new process
-# Start-Process "dotnet" "run --project .\src\Api\ --urls https://localhost:$port"
-Start-Process -FilePath "dotnet" -ArgumentList "watch --project ./src/Api/ --urls http://localhost:$port"
+Start-Process "dotnet" "run --project ./src/Api/ --urls http://localhost:$port"
+#Start-Process -FilePath "dotnet" -ArgumentList "watch --project ./src/Api/ --urls http://localhost:$port"

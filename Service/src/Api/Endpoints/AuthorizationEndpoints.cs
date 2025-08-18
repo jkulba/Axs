@@ -14,24 +14,9 @@ internal static class AuthorizationEndpoints
     {
         app.MapPost("/api/authorization/verify-access", async (
             VerifyAccessRequest request,
-            IValidator<VerifyAccessRequest> validator,
             ICommandDispatcher commandDispatcher,
             ILogger<IEndpointRouteBuilder> logger) =>
         {
-            // Validate the request
-            var validationResult = await validator.ValidateAsync(request);
-            if (!validationResult.IsValid)
-            {
-                var errors = validationResult.Errors
-                    .Select(error => new
-                    {
-                        Field = error.PropertyName,
-                        Message = error.ErrorMessage
-                    });
-
-                return Results.ValidationProblem(validationResult.ToDictionary());
-            }
-
             try
             {
                 var command = new VerifyAccessCommand(
@@ -45,6 +30,17 @@ internal static class AuthorizationEndpoints
 
                 var result = await commandDispatcher.Dispatch<VerifyAccessCommand, Result<AuthorizationResult>>(command, default);
                 return result.IsSuccess ? Results.Ok(result.Value) : result.ToProblemDetails();
+            }
+            catch (ValidationException validationEx)
+            {
+                logger.LogWarning("Validation failed for VerifyAccessCommand: {ValidationErrors}",
+                    string.Join("; ", validationEx.Errors.Select(e => e.ErrorMessage)));
+
+                return Results.ValidationProblem(
+                    validationEx.Errors
+                        .GroupBy(e => e.PropertyName)
+                        .ToDictionary(g => g.Key, g => g.Select(e => e.ErrorMessage).ToArray()),
+                    title: "One or more validation errors occurred");
             }
             catch (Exception ex)
             {

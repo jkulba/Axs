@@ -136,7 +136,7 @@ internal static class AccessRequestEndpoints
             try
             {
                 var result = await commandDispatcher.Dispatch<CreateAccessRequestCommand, Result<AccessRequest>>(command, default);
-                return result.IsSuccess ? Results.Created($"/access-requests/{result.Value.RequestId}", result.Value) : result.ToProblemDetails();
+                return result.IsSuccess ? Results.Created($"/api/access-requests/{result.Value.RequestId}", result.Value) : result.ToProblemDetails();
             }
             catch (ValidationException validationEx)
             {
