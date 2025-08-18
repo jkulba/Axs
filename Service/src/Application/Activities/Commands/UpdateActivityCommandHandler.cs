@@ -4,9 +4,9 @@ using Domain.Common;
 using Domain.Entities;
 using Domain.Errors;
 
-namespace Application.Activitys.Commands;
+namespace Application.Activities.Commands;
 
-public class UpdateActivityCommandHandler : ICommandHandler<UpdateActivityCommand, Activity>
+public class UpdateActivityCommandHandler : ICommandHandler<UpdateActivityCommand, Result<Activity>>
 {
     private readonly IActivityRepository _activityRepository;
 
@@ -30,10 +30,4 @@ public class UpdateActivityCommandHandler : ICommandHandler<UpdateActivityComman
         await _activityRepository.UpdateAsync(activity);
         return Result<Activity>.Success(activity);
     }
-
-    Task<Activity> ICommandHandler<UpdateActivityCommand, Activity>.Handle(UpdateActivityCommand command, CancellationToken cancellation)
-    {
-        throw new NotImplementedException();
-    }
-
 }

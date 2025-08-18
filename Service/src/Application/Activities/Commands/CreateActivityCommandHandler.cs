@@ -3,7 +3,7 @@ using Application.Interfaces;
 using Domain.Common;
 using Domain.Entities;
 
-namespace Application.Activitys.Commands;
+namespace Application.Activities.Commands;
 
 public class CreateActivityCommandHandler : ICommandHandler<CreateActivityCommand, Result<Activity>>
 {
@@ -28,4 +28,3 @@ public class CreateActivityCommandHandler : ICommandHandler<CreateActivityComman
         return Result<Activity>.Success(activity);
     }
 }
-

@@ -1,4 +1,4 @@
-namespace Application.Activitys.Commands;
+namespace Application.Activities.Commands;
 
 public record CreateActivityCommand(
     string ActivityCode,
