@@ -4,8 +4,9 @@
         <UserSecretsId>d6e61521-984b-48e8-8b67-79777e0f3d3c</UserSecretsId>
     </PropertyGroup>
     <ItemGroup>
+        <PackageReference Include="FluentValidation" />
+        <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
-        <PackageReference Include="Microsoft.OpenApi" />
         <PackageReference Include="Serilog.AspNetCore" />
         <PackageReference Include="Serilog.Enrichers.ClientInfo" />
         <PackageReference Include="Serilog.Enrichers.Environment" />
