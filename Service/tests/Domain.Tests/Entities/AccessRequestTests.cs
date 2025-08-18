@@ -20,7 +20,6 @@ public class AccessRequestTests
         Assert.Equal(0, accessRequest.CycleNumber);
         Assert.Null(accessRequest.ActivityCode);
         Assert.Null(accessRequest.ApplicationName);
-        Assert.Null(accessRequest.Version);
         Assert.Null(accessRequest.Workstation);
         Assert.Null(accessRequest.UtcCreatedAt);
     }
@@ -36,7 +35,6 @@ public class AccessRequestTests
         var cycleNumber = 1;
         var activityCode = "EDIT";
         var application = "TestApp";
-        var version = "1.0.0";
         var workstation = "TESTMACHINE";
         var utcCreatedAt = DateTime.UtcNow;
 
@@ -50,7 +48,6 @@ public class AccessRequestTests
             CycleNumber = cycleNumber,
             ActivityCode = activityCode,
             ApplicationName = application,
-            Version = version,
             Workstation = workstation,
             UtcCreatedAt = utcCreatedAt
         };
@@ -63,7 +60,6 @@ public class AccessRequestTests
         Assert.Equal(cycleNumber, accessRequest.CycleNumber);
         Assert.Equal(activityCode, accessRequest.ActivityCode);
         Assert.Equal(application, accessRequest.ApplicationName);
-        Assert.Equal(version, accessRequest.Version);
         Assert.Equal(workstation, accessRequest.Workstation);
         Assert.Equal(utcCreatedAt, accessRequest.UtcCreatedAt);
     }
@@ -81,7 +77,6 @@ public class AccessRequestTests
             CycleNumber = 1,
             ActivityCode = null,
             ApplicationName = null,
-            Version = null,
             Workstation = null,
             UtcCreatedAt = null
         };
@@ -89,7 +84,6 @@ public class AccessRequestTests
         // Assert
         Assert.Null(accessRequest.ActivityCode);
         Assert.Null(accessRequest.ApplicationName);
-        Assert.Null(accessRequest.Version);
         Assert.Null(accessRequest.Workstation);
         Assert.Null(accessRequest.UtcCreatedAt);
     }

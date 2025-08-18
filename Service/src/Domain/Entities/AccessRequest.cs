@@ -19,8 +19,6 @@ public class AccessRequest
 
     public string? ApplicationName { get; set; }
 
-    public string? Version { get; set; }
-
     public string? Workstation { get; set; }
 
     public DateTime? UtcCreatedAt { get; set; }

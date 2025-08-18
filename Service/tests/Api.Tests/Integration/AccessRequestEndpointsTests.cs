@@ -8,15 +8,25 @@ using Xunit;
 
 namespace Api.Tests.Integration;
 
-public class AccessRequestEndpointsTests : IClassFixture<WebApplicationFactory<Program>>
+public class AccessRequestEndpointsTests : IClassFixture<CustomWebApplicationFactory>, IAsyncLifetime
 {
-    private readonly WebApplicationFactory<Program> _factory;
+    private readonly CustomWebApplicationFactory _factory;
     private readonly HttpClient _client;
 
-    public AccessRequestEndpointsTests(WebApplicationFactory<Program> factory)
+    public AccessRequestEndpointsTests(CustomWebApplicationFactory factory)
     {
         _factory = factory;
         _client = factory.CreateClient();
+    }
+
+    public async ValueTask InitializeAsync()
+    {
+        await _factory.InitializeDatabaseAsync();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await _factory.CleanupDatabaseAsync();
     }
 
     [Fact]

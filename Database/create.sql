@@ -37,6 +37,15 @@ CREATE TABLE [dbo].[Activity]
 ) ON [PRIMARY]
 GO
 
+-- Insert sample records into Activity table
+INSERT INTO [dbo].[Activity] ([ActivityCode], [ActivityName], [Description], [IsActive]) VALUES
+    ('JOB.OPEN', 'Open Job', 'Represents the opening of a job.', 1),
+    ('JOB.CLOSE', 'Close Job', 'Represents the closing of a job.', 1),
+    ('USER.LOGIN', 'User Login', 'User login activity.', 1),
+    ('USER.LOGOUT', 'User Logout', 'User logout activity.', 1),
+    ('DATA.EXPORT', 'Data Export', 'Exporting data from the system.', 1)
+GO
+
 ALTER TABLE [dbo].[Activity] ADD CONSTRAINT [PK_Activity] PRIMARY KEY CLUSTERED 
 (
     [ActivityId] ASC

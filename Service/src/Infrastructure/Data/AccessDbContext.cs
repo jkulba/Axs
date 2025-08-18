@@ -28,9 +28,8 @@ public class AccessDbContext : DbContext
             entity.Property(e => e.RequestCode).IsRequired();
             entity.Property(e => e.UserName).IsRequired().HasMaxLength(255);
             entity.Property(e => e.ActivityCode).HasMaxLength(50);
-            entity.Property(e => e.ApplicationName).HasMaxLength(255);
-            entity.Property(e => e.Version).HasMaxLength(50);
-            entity.Property(e => e.Workstation).HasMaxLength(255);
+            entity.Property(e => e.ApplicationName).HasMaxLength(50);
+            entity.Property(e => e.Workstation).HasMaxLength(50);
 
             // Create unique index on RequestCode
             entity.HasIndex(e => e.RequestCode).IsUnique();
