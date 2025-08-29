@@ -3,7 +3,7 @@
 # Usage: .\run.ps1 <port-number>
 
 param(
-    [int]$port = "7001"
+    [int]$port = "5001"
 )
 
 # Start the development server
@@ -14,10 +14,10 @@ if (-not $port) {
 
 # Set the ASP.NET Core environment
 $env:ASPNETCORE_ENVIRONMENT = "Development"
-$env:ASPNETCORE_URLS = "https://localhost:$port"
+$env:ASPNETCORE_URLS = "http://localhost:$port"
 
 Write-Host "Starting development server on port $port in $env:ASPNETCORE_ENVIRONMENT mode"
 
 # Start the development server in a new process
 # Start-Process "dotnet" "run --project ./src/Api/ --urls http://localhost:$port"
-Start-Process -FilePath "dotnet" -ArgumentList "watch --project ./src/Api/ --urls https://localhost:$port"
+Start-Process -FilePath "dotnet" -ArgumentList "watch --project ./src/Api/ --urls http://localhost:$port"
