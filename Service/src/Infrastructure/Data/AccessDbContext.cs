@@ -12,6 +12,7 @@ public class AccessDbContext : DbContext
     public DbSet<AccessRequest> AccessRequests { get; set; }
     public DbSet<Authorization> Authorizations { get; set; }
     public DbSet<Activity> Activities { get; set; }
+    public DbSet<User> Users { get; set; }
     public DbSet<UserGroup> UserGroups { get; set; }
     public DbSet<UserGroupMember> UserGroupMembers { get; set; }
     public DbSet<GroupAuthorization> GroupAuthorizations { get; set; }
@@ -53,6 +54,13 @@ public class AccessDbContext : DbContext
                   .HasForeignKey(e => e.ActivityId)
                   .OnDelete(DeleteBehavior.Restrict);
 
+            // Configure relationship with User (optional, since UserId might reference external system)
+            entity.HasOne(e => e.User)
+                  .WithMany(u => u.Authorizations)
+                  .HasForeignKey(e => e.UserId)
+                  .HasPrincipalKey(u => u.UserId)
+                  .OnDelete(DeleteBehavior.SetNull);
+
             // Create indexes
             entity.HasIndex(e => new { e.JobNumber, e.UserId, e.ActivityId }).IsUnique();
         });
@@ -92,6 +100,13 @@ public class AccessDbContext : DbContext
                   .WithMany(g => g.Members)
                   .HasForeignKey(e => e.GroupId)
                   .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure relationship with User (optional, since UserId might reference external system)
+            entity.HasOne(e => e.User)
+                  .WithMany(u => u.UserGroupMemberships)
+                  .HasForeignKey(e => e.UserId)
+                  .HasPrincipalKey(u => u.UserId)
+                  .OnDelete(DeleteBehavior.SetNull);
         });
 
         // Configure GroupAuthorization
@@ -115,6 +130,23 @@ public class AccessDbContext : DbContext
 
             // Create unique index
             entity.HasIndex(e => new { e.JobNumber, e.GroupId, e.ActivityId }).IsUnique();
+        });
+
+        // Configure User
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.GraphId).IsRequired().HasMaxLength(255);
+            entity.Property(e => e.UserId).IsRequired().HasMaxLength(255);
+            entity.Property(e => e.DisplayName).IsRequired().HasMaxLength(255);
+            entity.Property(e => e.PrincipalName).IsRequired().HasMaxLength(255);
+            entity.Property(e => e.CreatedByNum).HasMaxLength(50);
+            entity.Property(e => e.UpdatedByNum).HasMaxLength(50);
+
+            // Create unique indexes
+            entity.HasIndex(e => e.GraphId).IsUnique();
+            entity.HasIndex(e => e.UserId).IsUnique();
+            entity.HasIndex(e => e.PrincipalName).IsUnique();
         });
     }
 }

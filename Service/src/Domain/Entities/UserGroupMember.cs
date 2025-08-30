@@ -8,6 +8,7 @@ public class UserGroupMember
 
     public string UserId { get; set; } = null!;
 
-    // Navigation property
+    // Navigation properties
     public virtual UserGroup Group { get; set; } = null!;
+    public virtual User? User { get; set; }
 }

@@ -25,4 +25,5 @@ public class Authorization
 
     // Navigation properties
     public virtual Activity Activity { get; set; } = null!;
+    public virtual User? User { get; set; }
 }
