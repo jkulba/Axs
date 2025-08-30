@@ -13,7 +13,7 @@ public class AccessRequestTests
 
         // Assert
         Assert.NotNull(accessRequest);
-        Assert.Equal(0, accessRequest.RequestId);
+        Assert.Equal(0, accessRequest.Id);
         Assert.Equal(Guid.Empty, accessRequest.RequestCode);
         Assert.Null(accessRequest.UserName); // UserName is actually null by default, not empty string
         Assert.Equal(0, accessRequest.JobNumber);
@@ -41,7 +41,7 @@ public class AccessRequestTests
         // Act
         var accessRequest = new AccessRequest
         {
-            RequestId = requestId,
+            Id = requestId,
             RequestCode = requestCode,
             UserName = userName,
             JobNumber = jobNumber,
@@ -53,7 +53,7 @@ public class AccessRequestTests
         };
 
         // Assert
-        Assert.Equal(requestId, accessRequest.RequestId);
+        Assert.Equal(requestId, accessRequest.Id);
         Assert.Equal(requestCode, accessRequest.RequestCode);
         Assert.Equal(userName, accessRequest.UserName);
         Assert.Equal(jobNumber, accessRequest.JobNumber);
@@ -70,7 +70,7 @@ public class AccessRequestTests
         // Act
         var accessRequest = new AccessRequest
         {
-            RequestId = 1,
+            Id = 1,
             RequestCode = Guid.NewGuid(),
             UserName = "test.user",
             JobNumber = 123,

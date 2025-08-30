@@ -13,14 +13,14 @@ public class UpdateActivityCommandValidatorTests
     public void Should_Have_Error_When_ActivityId_Is_Zero_Or_Negative()
     {
         var command = new UpdateActivityCommand(
-            ActivityId: 0,
+            Id: 0,
             ActivityCode: "ACT001",
             ActivityName: "Test Activity",
             Description: "Test Description"
         );
 
         var result = _validator.TestValidate(command);
-        result.ShouldHaveValidationErrorFor(x => x.ActivityId)
+        result.ShouldHaveValidationErrorFor(x => x.Id)
             .WithErrorMessage("Activity ID must be greater than 0.");
     }
 
@@ -28,7 +28,7 @@ public class UpdateActivityCommandValidatorTests
     public void Should_Have_Error_When_ActivityCode_Is_Empty()
     {
         var command = new UpdateActivityCommand(
-            ActivityId: 1,
+            Id: 1,
             ActivityCode: "",
             ActivityName: "Test Activity",
             Description: "Test Description"
@@ -43,7 +43,7 @@ public class UpdateActivityCommandValidatorTests
     public void Should_Have_Error_When_ActivityCode_Exceeds_MaxLength()
     {
         var command = new UpdateActivityCommand(
-            ActivityId: 1,
+            Id: 1,
             ActivityCode: new string('a', 51), // 51 characters
             ActivityName: "Test Activity",
             Description: "Test Description"
@@ -58,7 +58,7 @@ public class UpdateActivityCommandValidatorTests
     public void Should_Have_Error_When_ActivityCode_Contains_Invalid_Characters()
     {
         var command = new UpdateActivityCommand(
-            ActivityId: 1,
+            Id: 1,
             ActivityCode: "invalid!@#$%",
             ActivityName: "Test Activity",
             Description: "Test Description"
@@ -73,7 +73,7 @@ public class UpdateActivityCommandValidatorTests
     public void Should_Have_Error_When_ActivityName_Is_Empty()
     {
         var command = new UpdateActivityCommand(
-            ActivityId: 1,
+            Id: 1,
             ActivityCode: "ACT001",
             ActivityName: "",
             Description: "Test Description"
@@ -88,7 +88,7 @@ public class UpdateActivityCommandValidatorTests
     public void Should_Have_Error_When_ActivityName_Exceeds_MaxLength()
     {
         var command = new UpdateActivityCommand(
-            ActivityId: 1,
+            Id: 1,
             ActivityCode: "ACT001",
             ActivityName: new string('a', 256), // 256 characters
             Description: "Test Description"
@@ -103,7 +103,7 @@ public class UpdateActivityCommandValidatorTests
     public void Should_Have_Error_When_Description_Exceeds_MaxLength()
     {
         var command = new UpdateActivityCommand(
-            ActivityId: 1,
+            Id: 1,
             ActivityCode: "ACT001",
             ActivityName: "Test Activity",
             Description: new string('a', 1001) // 1001 characters
@@ -118,7 +118,7 @@ public class UpdateActivityCommandValidatorTests
     public void Should_Pass_Validation_When_All_Properties_Are_Valid()
     {
         var command = new UpdateActivityCommand(
-            ActivityId: 1,
+            Id: 1,
             ActivityCode: "ACT001",
             ActivityName: "Test Activity",
             Description: "Test Description"
@@ -132,7 +132,7 @@ public class UpdateActivityCommandValidatorTests
     public void Should_Pass_Validation_When_Description_Is_Null()
     {
         var command = new UpdateActivityCommand(
-            ActivityId: 1,
+            Id: 1,
             ActivityCode: "ACT001",
             ActivityName: "Test Activity",
             Description: null
@@ -146,7 +146,7 @@ public class UpdateActivityCommandValidatorTests
     public void Should_Pass_Validation_When_ActivityCode_Contains_Valid_Characters()
     {
         var command = new UpdateActivityCommand(
-            ActivityId: 1,
+            Id: 1,
             ActivityCode: "ACT-001.TEST_V2",
             ActivityName: "Test Activity",
             Description: "Test Description"
@@ -160,7 +160,7 @@ public class UpdateActivityCommandValidatorTests
     public void Should_Pass_Validation_When_IsActive_Is_False()
     {
         var command = new UpdateActivityCommand(
-            ActivityId: 1,
+            Id: 1,
             ActivityCode: "ACT001",
             ActivityName: "Test Activity",
             Description: "Test Description",

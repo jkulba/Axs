@@ -13,7 +13,7 @@ public class ActivityTests
 
         // Assert
         Assert.NotNull(activity);
-        Assert.Equal(0, activity.ActivityId);
+        Assert.Equal(0, activity.Id);
         Assert.Null(activity.ActivityCode); // Actually null by default
         Assert.Null(activity.ActivityName); // Actually null by default
         Assert.Null(activity.Description);
@@ -37,7 +37,7 @@ public class ActivityTests
         // Act
         var activity = new Activity
         {
-            ActivityId = activityId,
+            Id = activityId,
             ActivityCode = activityCode,
             ActivityName = activityName,
             Description = description,
@@ -45,7 +45,7 @@ public class ActivityTests
         };
 
         // Assert
-        Assert.Equal(activityId, activity.ActivityId);
+        Assert.Equal(activityId, activity.Id);
         Assert.Equal(activityCode, activity.ActivityCode);
         Assert.Equal(activityName, activity.ActivityName);
         Assert.Equal(description, activity.Description);

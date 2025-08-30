@@ -16,13 +16,13 @@ public class DeleteAccessRequestCommandHandler : ICommandHandler<DeleteAccessReq
 
     public async Task<Result<int>> Handle(DeleteAccessRequestCommand command, CancellationToken cancellation)
     {
-        var accessRequest = await _repository.GetByIdAsync(command.RequestId, cancellation);
+        var accessRequest = await _repository.GetByIdAsync(command.Id, cancellation);
         if (accessRequest == null)
         {
             return Result<int>.Failure(new Error("NotFound.AccessRequest", "Access request not found"));
         }
 
-        var rowsAffected = await _repository.DeleteAsync(command.RequestId, cancellation);
+        var rowsAffected = await _repository.DeleteAsync(command.Id, cancellation);
 
         return Result<int>.Success(rowsAffected);
     }

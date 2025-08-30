@@ -2,6 +2,7 @@ using Application.Common;
 using Application.Interfaces;
 using Domain.Common;
 using Domain.Entities;
+using Domain.Errors;
 
 namespace Application.Users.Queries;
 
@@ -16,7 +17,19 @@ public class GetUsersQueryHandler : IQueryHandler<GetUsersQuery, Result<IEnumera
 
     public async Task<Result<IEnumerable<User>>> Handle(GetUsersQuery query, CancellationToken cancellationToken)
     {
-        var users = await _userRepository.GetAllAsync(cancellationToken);
-        return Result<IEnumerable<User>>.Success(users);
+        try
+        {
+            var results = await _userRepository.GetAllAsync(cancellationToken);
+
+            if (results == null || !results.Any())
+            {
+                return Result<IEnumerable<User>>.Failure(UserErrors.UsersNotFound);
+            }
+            return Result<IEnumerable<User>>.Success(results);
+        }
+        catch (Exception ex)
+        {
+            return Result<IEnumerable<User>>.Failure(new Error(ex.Message, "An error occurred while handling the users query"));
+        }
     }
 }

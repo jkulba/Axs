@@ -20,7 +20,7 @@ public class GetActivityByIdQueryHandler : IQueryHandler<GetActivityByIdQuery, R
         var activity = await _activityRepository.GetByIdAsync(query.Id, cancellationToken);
         if (activity == null)
         {
-            return Result<Activity>.Failure(ActivityErrors.ActivityNotFound);
+            return Result<Activity>.Failure(ActivityErrors.ActivityByIdNotFound(query.Id));
         }
 
         return Result<Activity>.Success(activity);

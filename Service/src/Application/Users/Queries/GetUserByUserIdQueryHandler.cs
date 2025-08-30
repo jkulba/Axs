@@ -21,7 +21,7 @@ public class GetUserByUserIdQueryHandler : IQueryHandler<GetUserByUserIdQuery, R
 
         if (user == null)
         {
-            return Result<User>.Failure(UserErrors.UserNotFound);
+            return Result<User>.Failure(UserErrors.UserByUserIdNotFound(query.UserId));
         }
 
         return Result<User>.Success(user);

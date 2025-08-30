@@ -19,11 +19,11 @@ public class GetAccessRequestByIdQueryHandler : IQueryHandler<GetAccessRequestBy
     {
         try
         {
-            var accessRequest = await _repository.GetByIdAsync(query.RequestId, cancellationToken);
+            var accessRequest = await _repository.GetByIdAsync(query.Id, cancellationToken);
 
             if (accessRequest == null)
             {
-                return Result<AccessRequest>.Failure(AccessRequestErrors.AccessRequestsNotFound);
+                return Result<AccessRequest>.Failure(AccessRequestErrors.AccessRequestByIdNotFound(query.Id));
             }
             return Result<AccessRequest>.Success(accessRequest);
         }

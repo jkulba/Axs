@@ -38,7 +38,7 @@ public class AuthorizationTests
         var createdByNum = "admin123";
         var utcUpdatedAt = DateTime.UtcNow.AddHours(1);
         var updatedByNum = "manager456";
-        var activity = new Activity { ActivityId = 5, ActivityCode = "EDIT" };
+        var activity = new Activity { Id = 5, ActivityCode = "EDIT" };
 
         // Act
         var authorization = new Authorization
@@ -226,7 +226,7 @@ public class AuthorizationTests
         // Arrange
         var activity = new Activity
         {
-            ActivityId = 10,
+            Id = 10,
             ActivityCode = "APPROVE",
             ActivityName = "Approve Documents"
         };
@@ -238,7 +238,7 @@ public class AuthorizationTests
 
         // Act & Assert
         Assert.Equal(activity, authorization.Activity);
-        Assert.Equal(10, authorization.ActivityId);
-        Assert.Equal(authorization.ActivityId, authorization.Activity.ActivityId);
+        Assert.Equal(10, authorization.Activity.Id);
+        Assert.Equal(authorization.Activity.Id, authorization.Activity.Id);
     }
 }

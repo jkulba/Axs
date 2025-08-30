@@ -19,7 +19,7 @@ public class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand, Resul
         var user = await _userRepository.GetByIdAsync(command.Id, cancellationToken);
         if (user == null)
         {
-            return Result<int>.Failure(UserErrors.UserNotFound);
+            return Result<int>.Failure(UserErrors.UserByIdNotFound(command.Id));
         }
 
         var deletedCount = await _userRepository.DeleteAsync(user.Id, cancellationToken);

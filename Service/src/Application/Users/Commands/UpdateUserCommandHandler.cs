@@ -20,7 +20,7 @@ public class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand, Resul
         var user = await _userRepository.GetByIdAsync(command.Id, cancellationToken);
         if (user == null)
         {
-            return Result<User>.Failure(UserErrors.UserNotFound);
+            return Result<User>.Failure(UserErrors.UserByIdNotFound(command.Id));
         }
 
         user.GraphId = command.GraphId;

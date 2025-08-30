@@ -20,7 +20,7 @@ public class UpdateActivityCommandHandler : ICommandHandler<UpdateActivityComman
         var activity = await _activityRepository.GetByIdAsync(command.Id, cancellationToken);
         if (activity == null)
         {
-            return Result<Activity>.Failure(ActivityErrors.ActivityNotFound);
+            return Result<Activity>.Failure(ActivityErrors.ActivityByIdNotFound(command.Id));
         }
 
         activity.ActivityName = command.ActivityName;

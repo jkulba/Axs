@@ -1,13 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Domain.Common;
 
 namespace Domain.Errors;
 
 public static class ActivityErrors
 {
-    public static Error ActivityNotFound => new(
-        "Activity.ActivityNotFound", "Activity not found");
+    public static Error ActivitiesNotFound => new(
+        "Activity.ActivitiesNotFound", "No activities found");
+
+    public static Error ActivityByIdNotFound(int id) => new(
+        "Activity.ActivityByIdNotFound", $"Activity with ID = '{id}' was not found");
 }

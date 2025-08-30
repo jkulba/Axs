@@ -25,7 +25,7 @@ public class AccessDbContext : DbContext
         modelBuilder.Entity<AccessRequest>(entity =>
         {
             entity.ToTable("AccessRequest");
-            entity.HasKey(e => e.RequestId);
+            entity.HasKey(e => e.Id);
             entity.Property(e => e.RequestCode).IsRequired();
             entity.Property(e => e.UserName).IsRequired().HasMaxLength(255);
             entity.Property(e => e.ActivityCode).HasMaxLength(50);
