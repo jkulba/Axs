@@ -1,10 +1,11 @@
+using Application.Common;
 using Application.Interfaces;
 using Domain.Common;
 using Domain.Entities;
 
 namespace Application.Users.Queries;
 
-public class GetUsersQueryHandler
+public class GetUsersQueryHandler : IQueryHandler<GetUsersQuery, Result<IEnumerable<User>>>
 {
     private readonly IUserRepository _userRepository;
 

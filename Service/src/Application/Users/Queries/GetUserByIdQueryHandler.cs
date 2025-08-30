@@ -1,3 +1,4 @@
+using Application.Common;
 using Application.Interfaces;
 using Domain.Common;
 using Domain.Entities;
@@ -5,7 +6,7 @@ using Domain.Errors;
 
 namespace Application.Users.Queries;
 
-public class GetUserByIdQueryHandler
+public class GetUserByIdQueryHandler : IQueryHandler<GetUserByIdQuery, Result<User>>
 {
     private readonly IUserRepository _userRepository;
 

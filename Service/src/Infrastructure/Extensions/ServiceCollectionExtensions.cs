@@ -31,6 +31,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddScoped<IAccessRequestRepository, AccessRequestRepository>();
         services.AddScoped<IActivityRepository, ActivityRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
 
         return services;
     }

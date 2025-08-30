@@ -1,3 +1,4 @@
+using Application.Common;
 using Application.Interfaces;
 using Domain.Common;
 using Domain.Entities;
@@ -5,7 +6,7 @@ using Domain.Errors;
 
 namespace Application.Users.Commands;
 
-public class UpdateUserCommandHandler
+public class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand, Result<User>>
 {
     private readonly IUserRepository _userRepository;
 

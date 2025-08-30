@@ -1,10 +1,11 @@
+using Application.Common;
 using Application.Interfaces;
 using Domain.Common;
 using Domain.Entities;
 
 namespace Application.Users.Commands;
 
-public class CreateUserCommandHandler
+public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Result<User>>
 {
     private readonly IUserRepository _userRepository;
 

@@ -1,10 +1,11 @@
+using Application.Common;
 using Application.Interfaces;
 using Domain.Common;
 using Domain.Errors;
 
 namespace Application.Users.Commands;
 
-public class DeleteUserCommandHandler
+public class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand, Result<int>>
 {
     private readonly IUserRepository _userRepository;
 
@@ -13,15 +14,15 @@ public class DeleteUserCommandHandler
         _userRepository = userRepository;
     }
 
-    public async Task<Result> Handle(DeleteUserCommand command, CancellationToken cancellationToken)
+    public async Task<Result<int>> Handle(DeleteUserCommand command, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetByIdAsync(command.Id, cancellationToken);
         if (user == null)
         {
-            return Result.Failure(UserErrors.UserNotFound);
+            return Result<int>.Failure(UserErrors.UserNotFound);
         }
 
-        await _userRepository.DeleteAsync(user.Id, cancellationToken);
-        return Result.Success();
+        var deletedCount = await _userRepository.DeleteAsync(user.Id, cancellationToken);
+        return Result<int>.Success(deletedCount);
     }
 }
