@@ -17,7 +17,7 @@ public class UpdateActivityCommandHandler : ICommandHandler<UpdateActivityComman
 
     public async Task<Result<Activity>> Handle(UpdateActivityCommand command, CancellationToken cancellationToken)
     {
-        var activity = await _activityRepository.GetByIdAsync(command.ActivityId, cancellationToken);
+        var activity = await _activityRepository.GetByIdAsync(command.Id, cancellationToken);
         if (activity == null)
         {
             return Result<Activity>.Failure(ActivityErrors.ActivityNotFound);

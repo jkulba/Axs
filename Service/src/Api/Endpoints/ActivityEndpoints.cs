@@ -19,7 +19,7 @@ internal static class ActivityEndpoints
             try
             {
                 var result = await commandDispatcher.Dispatch<CreateActivityCommand, Result<Activity>>(command, default);
-                return result.IsSuccess ? Results.Created($"/api/activities/{result.Value.ActivityId}", result.Value) : result.ToProblemDetails();
+                return result.IsSuccess ? Results.Created($"/api/activities/{result.Value.Id}", result.Value) : result.ToProblemDetails();
 
             }
             catch (ValidationException validationEx)
@@ -51,8 +51,8 @@ internal static class ActivityEndpoints
         {
             try
             {
-                // Ensure the route parameter matches the command ActivityId
-                if (id != command.ActivityId)
+                // Ensure the route parameter matches the command Id
+                if (id != command.Id)
                 {
                     return Results.BadRequest("The activity ID in the URL does not match the activity ID in the request body.");
                 }

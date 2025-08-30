@@ -60,7 +60,7 @@ public class AccessDbContext : DbContext
         // Configure Activity
         modelBuilder.Entity<Activity>(entity =>
         {
-            entity.HasKey(e => e.ActivityId);
+            entity.HasKey(e => e.Id);
             entity.Property(e => e.ActivityCode).IsRequired().HasMaxLength(50);
             entity.Property(e => e.ActivityName).IsRequired().HasMaxLength(255);
             entity.Property(e => e.Description).HasMaxLength(1000);
