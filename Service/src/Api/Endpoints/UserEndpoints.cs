@@ -1,6 +1,7 @@
 using Api.Extensions;
 using Application.Common;
 using Application.Users.Commands;
+using Application.Users.Queries;
 using Domain.Common;
 using Domain.Entities;
 using FluentValidation;
@@ -93,6 +94,56 @@ internal static class UserEndpoints
         .WithDescription("Deletes an existing user.")
         .WithTags("Users")
         .WithOpenApi();
+
+        // Get All Users
+        app.MapGet("/api/users", async (IQueryDispatcher queryDispatcher, ILogger<IEndpointRouteBuilder> logger) =>
+        {
+            var query = new GetUsersQuery();
+            var result = await queryDispatcher.Dispatch<GetUsersQuery, Result<IEnumerable<User>>>(query, default);
+
+            if (result.IsNotFound)
+            {
+                return Results.NotFound($"Users not found.");
+            }
+
+            return result.IsSuccess ? Results.Ok(result.Value) : result.ToProblemDetails();
+
+        })
+        .WithName("GetUsers")
+        .WithSummary("Get all users")
+        .WithDescription("Retrieves a list of all users.")
+        .WithTags("Users")
+        .WithOpenApi();
+
+        // Get User by Id
+        app.MapGet("/api/users/{id:int}", async (int id, IQueryDispatcher queryDispatcher, ILogger<IEndpointRouteBuilder> logger) =>
+        {
+            var query = new GetUserByIdQuery(id);
+            var result = await queryDispatcher.Dispatch<GetUserByIdQuery, Result<User>>(query, default);
+
+            return result.IsSuccess ? Results.Ok(result.Value) : result.ToProblemDetails();
+        })
+        .WithName("GetUserById")
+        .WithSummary("Get a user by ID")
+        .WithDescription("Retrieves a specific user by ID.")
+        .WithTags("Users")
+        .WithOpenApi();
+
+
+        // Get User by UserId
+        app.MapGet("/api/users/userid/{userId}", async (string userId, IQueryDispatcher queryDispatcher, ILogger<IEndpointRouteBuilder> logger) =>
+        {
+            var query = new GetUserByUserIdQuery(userId);
+            var result = await queryDispatcher.Dispatch<GetUserByUserIdQuery, Result<User>>(query, default);
+
+            return result.IsSuccess ? Results.Ok(result.Value) : result.ToProblemDetails();
+        })
+        .WithName("GetUserByUserId")
+        .WithSummary("Get a user by UserId")
+        .WithDescription("Retrieves a specific user by UserId.")
+        .WithTags("Users")
+        .WithOpenApi();
+
 
         return app;
     }

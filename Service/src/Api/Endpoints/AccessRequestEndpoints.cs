@@ -57,7 +57,7 @@ internal static class AccessRequestEndpoints
         .WithTags("AccessRequests")
         .WithOpenApi();
 
-        app.MapGet("/api/access-requests/by-request-code/{requestCode:guid}", async (Guid requestCode, IQueryDispatcher queryDispatcher, ILogger<IEndpointRouteBuilder> logger) =>
+        app.MapGet("/api/access-requests/request-code/{requestCode:guid}", async (Guid requestCode, IQueryDispatcher queryDispatcher, ILogger<IEndpointRouteBuilder> logger) =>
         {
             try
             {
@@ -79,7 +79,7 @@ internal static class AccessRequestEndpoints
         .WithTags("AccessRequests")
         .WithOpenApi();
 
-        app.MapGet("/api/access-requests/by-job-number/{jobNumber:int}", async (int jobNumber, IQueryDispatcher queryDispatcher, ILogger<IEndpointRouteBuilder> logger) =>
+        app.MapGet("/api/access-requests/job-number/{jobNumber:int}", async (int jobNumber, IQueryDispatcher queryDispatcher, ILogger<IEndpointRouteBuilder> logger) =>
         {
             try
             {
@@ -105,7 +105,7 @@ internal static class AccessRequestEndpoints
         .WithTags("AccessRequests")
         .WithOpenApi();
 
-        app.MapGet("/api/access-requests/by-user/{userName}", async (string userName, IQueryDispatcher queryDispatcher, ILogger<IEndpointRouteBuilder> logger) =>
+        app.MapGet("/api/access-requests/user/{userName}", async (string userName, IQueryDispatcher queryDispatcher, ILogger<IEndpointRouteBuilder> logger) =>
         {
             try
             {
