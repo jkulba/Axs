@@ -64,12 +64,23 @@ jobs:
 
     - name: Run unit tests
       run: |
+        echo "=== Running tests with coverage collection ==="
         if [ -f "./Service/coverlet.runsettings" ]; then
           echo "Using coverlet.runsettings configuration"
           dotnet test ${{ env.SOLUTION_PATH }} --configuration ${{ matrix.configuration }} --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage --settings ./Service/coverlet.runsettings
         else
           echo "Running tests without coverlet.runsettings"
           dotnet test ${{ env.SOLUTION_PATH }} --configuration ${{ matrix.configuration }} --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
+        fi
+        
+        echo "=== Post-test coverage directory analysis ==="
+        if [ -d "./coverage" ]; then
+          echo "Coverage directory exists:"
+          find ./coverage -type f -name "*.xml" | head -10
+          echo "Total XML files found: $(find ./coverage -name "*.xml" -type f | wc -l)"
+          echo "Cobertura files found: $(find ./coverage -name "*cobertura*" -type f | wc -l)"
+        else
+          echo "ERROR: Coverage directory was not created"
         fi
     
     - name: Install ReportGenerator (Release only)
@@ -79,12 +90,42 @@ jobs:
     - name: Generate human-readable coverage report (Release only)
       if: matrix.configuration == 'Release'
       run: |
-        reportgenerator \
-          -reports:"coverage/**/coverage.cobertura.xml" \
-          -targetdir:"coverage-report" \
-          -reporttypes:"Html;HtmlSummary;Badges;TextSummary;MarkdownSummary;Cobertura" \
-          -title:"Axs Service Code Coverage Report" \
-          -tag:"${{ github.run_number }}-${{ github.sha }}"
+        echo "=== Searching for coverage files ==="
+        find ./coverage -name "*.xml" -type f 2>/dev/null || echo "No XML files found in coverage directory"
+        find ./coverage -name "*cobertura*" -type f 2>/dev/null || echo "No Cobertura files found"
+        
+        echo "=== Coverage directory structure ==="
+        ls -la ./coverage/ 2>/dev/null || echo "Coverage directory does not exist"
+        find ./coverage -type f 2>/dev/null || echo "No files found in coverage directory"
+        
+        echo "=== Attempting to generate coverage report ==="
+        # Try multiple file patterns to find coverage files
+        COVERAGE_FILES=""
+        if find ./coverage -name "*cobertura*" -type f | grep -q .; then
+          COVERAGE_FILES="./coverage/**/*cobertura*.xml"
+          echo "Found cobertura files using pattern: $COVERAGE_FILES"
+        elif find ./coverage -name "coverage.xml" -type f | grep -q .; then
+          COVERAGE_FILES="./coverage/**/coverage.xml"
+          echo "Found coverage.xml files using pattern: $COVERAGE_FILES"
+        elif find ./coverage -name "*.xml" -type f | grep -q .; then
+          COVERAGE_FILES="./coverage/**/*.xml"
+          echo "Found XML files using pattern: $COVERAGE_FILES"
+        fi
+        
+        if [ ! -z "$COVERAGE_FILES" ]; then
+          echo "Generating coverage report with files: $COVERAGE_FILES"
+          reportgenerator \
+            -reports:"$COVERAGE_FILES" \
+            -targetdir:"coverage-report" \
+            -reporttypes:"Html;HtmlSummary;Badges;TextSummary;MarkdownSummary;Cobertura" \
+            -title:"Axs Service Code Coverage Report" \
+            -tag:"${{ github.run_number }}-${{ github.sha }}"
+        else
+          echo "No coverage files found, creating placeholder report..."
+          mkdir -p coverage-report
+          echo "No coverage data available for this build." > coverage-report/Summary.txt
+          echo "<html><body><h1>No Coverage Data</h1><p>Coverage collection failed or no tests were run.</p></body></html>" > coverage-report/index.html
+        fi
 
     - name: Display coverage summary in console (Release only)
       if: matrix.configuration == 'Release'
@@ -96,3 +137,23 @@ jobs:
           echo "Coverage summary not found"
         fi
         echo "================================"
+
+    - name: Upload test results and coverage reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-and-coverage-results-${{ matrix.configuration }}
+        path: |
+          ./coverage
+          ./coverage-report
+          **/TestResults/**/*.xml
+          **/TestResults/**/*.trx
+        retention-days: 30
+
+    - name: Upload human-readable coverage report (Release only)
+      if: matrix.configuration == 'Release' && always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report-html
+        path: ./coverage-report
+        retention-days: 30
