@@ -1,0 +1,129 @@
+name: Feature Request
+description: Suggest a new feature or enhancement for the Axs Access Control Service
+title: "[FEATURE] "
+labels: ["enhancement", "feature-request"]
+assignees:
+  - jkulba
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for suggesting a new feature! Please provide detailed information to help us understand your request.
+
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: Feature Description
+      description: A clear and detailed description of the feature you'd like to see implemented
+      placeholder: Describe the feature in detail, including what it should do and how it should work
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem-solution
+    attributes:
+      label: Problem and Solution
+      description: What problem does this feature solve? How does it improve the system?
+      placeholder: |
+        **Problem:** Describe the issue or limitation this feature addresses
+        **Solution:** Explain how this feature would solve the problem
+    validations:
+      required: true
+
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: Use Cases
+      description: Provide specific examples of how this feature would be used
+      placeholder: |
+        1. As a [user type], I want to [action] so that [benefit]
+        2. When [scenario], the system should [behavior]
+        3. In the case of [situation], users need to [capability]
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which component would this feature primarily affect?
+      options:
+        - API (New endpoints or modifications)
+        - Application Layer (Commands/Queries/Handlers)
+        - Infrastructure (Database/Repositories)
+        - Domain (Entities/Business Logic)
+        - UI/Frontend (Web interface)
+        - Authentication/Authorization
+        - Logging/Monitoring
+        - Documentation
+        - Build/CI
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature to you?
+      options:
+        - Low - Nice to have
+        - Medium - Would improve workflow
+        - High - Needed for important use case
+        - Critical - Blocking current work
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: Define what "done" looks like for this feature
+      placeholder: |
+        - [ ] Criterion 1: The system should...
+        - [ ] Criterion 2: Users can...
+        - [ ] Criterion 3: When..., then...
+        - [ ] Criterion 4: Error handling for...
+
+  - type: textarea
+    id: technical-considerations
+    attributes:
+      label: Technical Considerations
+      description: Any technical requirements, constraints, or implementation ideas?
+      placeholder: |
+        - Database schema changes needed
+        - API design considerations
+        - Security implications
+        - Performance requirements
+        - Integration points
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Have you considered alternative solutions? What are the pros/cons?
+      placeholder: Describe any alternative approaches you've thought about
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context, mockups, or examples
+      placeholder: Screenshots, diagrams, links to similar features in other systems, etc.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please verify the following before submitting
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate
+          required: true
+        - label: I have provided a clear description of the feature
+          required: true
+        - label: I have explained the problem this feature solves
+          required: true
+        - label: I have included specific use cases
+          required: true
+        - label: I have defined acceptance criteria
+          required: true

@@ -1,0 +1,147 @@
+name: Documentation Improvement
+description: Suggest improvements to documentation, guides, or code comments
+title: "[DOCS] "
+labels: ["documentation", "improvement"]
+assignees:
+  - jkulba
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping improve our documentation! Clear documentation is essential for project success.
+
+  - type: textarea
+    id: documentation-issue
+    attributes:
+      label: Documentation Issue
+      description: What documentation problem did you encounter?
+      placeholder: |
+        Describe the issue you found:
+        - Missing information
+        - Outdated content
+        - Unclear explanations
+        - Broken links
+        - Poor organization
+        - Missing examples
+    validations:
+      required: true
+
+  - type: textarea
+    id: location
+    attributes:
+      label: Document Location
+      description: Where is the problematic documentation located?
+      placeholder: |
+        Please specify:
+        - File path (e.g., Service/docs/README-Database.md)
+        - URL (if online documentation)
+        - Section/heading name
+        - Line numbers (if applicable)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: doc-type
+    attributes:
+      label: Documentation Type
+      description: What type of documentation needs improvement?
+      options:
+        - README files
+        - API documentation
+        - Setup/Installation guides
+        - User guides
+        - Developer documentation
+        - Code comments
+        - Architecture documentation
+        - Database documentation
+        - Deployment guides
+        - Testing documentation
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-content
+    attributes:
+      label: Current Content (if applicable)
+      description: Copy the current text that needs improvement
+      render: markdown
+      placeholder: Paste the current documentation content here
+
+  - type: textarea
+    id: suggested-improvement
+    attributes:
+      label: Suggested Improvement
+      description: How should the documentation be improved?
+      placeholder: |
+        Provide your suggestions:
+        - Corrected/improved text
+        - Additional information needed
+        - Better organization structure
+        - Missing examples or diagrams
+        - Links to add or fix
+    validations:
+      required: true
+
+  - type: dropdown
+    id: audience
+    attributes:
+      label: Target Audience
+      description: Who is the primary audience for this documentation?
+      options:
+        - End users
+        - Developers/Contributors
+        - System administrators
+        - Database administrators
+        - Project maintainers
+        - New contributors
+        - All users
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact Level
+      description: How significantly does this documentation issue affect users?
+      options:
+        - Low - Minor clarification needed
+        - Medium - Could cause confusion
+        - High - Blocks user understanding
+        - Critical - Prevents successful setup/usage
+
+  - type: textarea
+    id: user-story
+    attributes:
+      label: User Story
+      description: Describe the scenario from a user's perspective
+      placeholder: |
+        "As a [type of user], when I [try to do something], I [encounter this problem] because the documentation [specific issue]."
+        
+        Example: "As a new developer, when I try to set up the development environment, I get confused because the README doesn't explain which .NET version is required."
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other relevant information
+      placeholder: |
+        - Screenshots of the problematic documentation
+        - Links to related documentation that works well
+        - Examples from other projects
+        - Specific use cases this would help
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please verify the following before submitting
+      options:
+        - label: I have identified the specific location of the documentation issue
+          required: true
+        - label: I have clearly described the problem
+          required: true
+        - label: I have provided constructive suggestions for improvement
+          required: true
+        - label: I have considered the target audience
+          required: true

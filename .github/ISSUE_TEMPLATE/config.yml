@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Project Documentation
+    url: https://github.com/jkulba/Axs/tree/develop/Service/docs
+    about: Browse the comprehensive documentation in the Service/docs directory
+  - name: 🔄 CI/CD Status
+    url: https://github.com/jkulba/Axs/actions
+    about: Check the status of builds and automated tests
+  - name: 📖 Database Requirements
+    url: https://github.com/jkulba/Axs/tree/develop/Database/requirements
+    about: View detailed system requirements and database documentation

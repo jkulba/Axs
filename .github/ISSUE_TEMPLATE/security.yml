@@ -1,0 +1,123 @@
+name: Security Vulnerability Report
+description: Report a security vulnerability (for non-critical issues only)
+title: "[SECURITY] "
+labels: ["security", "vulnerability"]
+assignees:
+  - jkulba
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## ⚠️ Security Reporting Guidelines
+        
+        **For critical security vulnerabilities, please DO NOT use this public issue tracker.**
+        
+        Instead, please report critical security issues privately by:
+        - Emailing the project maintainer directly
+        - Using GitHub's security advisory feature (Security tab → Report a vulnerability)
+        
+        This public template is only for **non-critical security improvements** or **general security questions**.
+
+  - type: textarea
+    id: security-concern
+    attributes:
+      label: Security Concern Description
+      description: Describe the security issue or improvement suggestion
+      placeholder: |
+        Please provide a clear description of:
+        - What security aspect is affected
+        - Why this is a concern
+        - What could potentially happen
+        
+        Note: Do NOT include specific exploit details in this public issue
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Estimated Severity
+      description: How severe do you estimate this security concern to be?
+      options:
+        - Informational - General security improvement
+        - Low - Minor security enhancement
+        - Medium - Should be addressed but not urgent
+        - "High - Please use private reporting instead"
+        - "Critical - Please use private reporting instead"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Affected Component
+      description: Which component has the security concern?
+      options:
+        - API Authentication
+        - API Authorization
+        - Database Access
+        - Input Validation
+        - Session Management
+        - Logging/Monitoring
+        - Configuration
+        - Dependencies
+        - Build/Deployment
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Potential Impact
+      description: What could be the impact if this issue is not addressed?
+      placeholder: |
+        Describe the potential consequences:
+        - What data or functionality could be affected
+        - What type of attacker could exploit this
+        - What would be the business impact
+    validations:
+      required: true
+
+  - type: textarea
+    id: mitigation
+    attributes:
+      label: Suggested Mitigation
+      description: Do you have suggestions for how to address this concern?
+      placeholder: |
+        Provide any suggestions for:
+        - How to fix or improve the security aspect
+        - Best practices that should be implemented
+        - Additional security measures to consider
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment Details
+      description: Provide relevant environment information
+      placeholder: |
+        - Deployment environment (Development/Production)
+        - Authentication method in use
+        - Database configuration
+        - Network setup
+        - Any security tools currently used
+
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Confirmation
+      description: Please confirm your understanding of security reporting
+      options:
+        - label: I understand this is a public issue and have not included sensitive exploit details
+          required: true
+        - label: I confirm this is not a critical vulnerability requiring private reporting
+          required: true
+        - label: I have verified this is a legitimate security concern
+          required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        **Remember**: For critical security vulnerabilities, use private reporting channels to protect users until a fix is available.
