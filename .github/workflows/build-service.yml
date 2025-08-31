@@ -15,58 +15,89 @@ on:
     paths:
       - 'Service/**'
   workflow_dispatch:
-      
-jobs:
-  build:
-    name: Build 
-    runs-on: ubuntu-latest
-    env:
-      DOTNET_CLI_TELEMETRY_OPTOUT: 1
-      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-      DOTNET_NOLOGO: true
-      DOTNET_GENERATE_ASPNET_CERTIFICATE: false
-      DOTNET_ADD_GLOBAL_TOOLS_TO_PATH: false
-      DOTNET_MULTILEVEL_LOOKUP: 0
-      DOTNET_SYSTEM_CONSOLE_ALLOW_ANSI_COLOR_REDIRECTION: true
-      TERM: xterm
 
+env:
+    DOTNET_CLI_TELEMETRY_OPTOUT: 1
+    DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+    DOTNET_NOLOGO: true
+    DOTNET_GENERATE_ASPNET_CERTIFICATE: false
+    DOTNET_ADD_GLOBAL_TOOLS_TO_PATH: false
+    DOTNET_MULTILEVEL_LOOKUP: 0
+    DOTNET_SYSTEM_CONSOLE_ALLOW_ANSI_COLOR_REDIRECTION: true
+    TERM: xterm
+    DOTNET_VERSION: '9.0.x'
+    SOLUTION_PATH: './Service/Service.sln'
+  
+jobs:
+  build-and-test:
+    name: Build and Test Service
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+    
     steps:
-    - uses: actions/checkout@v5
+    - name: Checkout code
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
-    - name: Setup .NET SDK
+    - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 9.0.x
+        dotnet-version: ${{ env.DOTNET_VERSION }}
 
-    - name: Generate Version Info
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+
+    - name: Restore dependencies
+      run: dotnet restore ${{ env.SOLUTION_PATH }}
+
+    - name: Build solution
+      run: dotnet build ${{ env.SOLUTION_PATH }} --configuration ${{ matrix.configuration }} --no-restore
+
+    - name: Run unit tests
       run: |
-        # Run the version script to generate version information
-        ./Service/version.sh
+        if [ -f "./Service/coverlet.runsettings" ]; then
+          echo "Using coverlet.runsettings configuration"
+          dotnet test ${{ env.SOLUTION_PATH }} --configuration ${{ matrix.configuration }} --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage --settings ./Service/coverlet.runsettings
+        else
+          echo "Running tests without coverlet.runsettings"
+          dotnet test ${{ env.SOLUTION_PATH }} --configuration ${{ matrix.configuration }} --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
+        fi
+    
+# jobs:
+#   build:
+#     name: Build and Test
+#     runs-on: ubuntu-latest
 
-    - name: Restore Dependencies
-      run: dotnet restore ./Service/src/Api/Api.csproj
+#     steps:
+#     - uses: actions/checkout@v5
+#       with:
+#         fetch-depth: 0
 
-    - name: Build Project
-      run: dotnet build ./Service/src/Api/Api.csproj --configuration Release --no-restore
+#     - name: Setup .NET SDK
+#       uses: actions/setup-dotnet@v4
+#       with:
+#         dotnet-version: 9.0.x
 
-    - name: Publish as Self-Contained
-      run: dotnet publish ./Service/src/Api/Api.csproj --configuration Release --runtime linux-x64 --self-contained true --output ./dist/axs/publish
+#     - name: Generate Version Info
+#       run: |
+#         # Run the version script to generate version information
+#         ./Service/version.sh
 
-    # - name: Copy Scripts to Publish Directory
-    #   run: |
-    #     if [ -d "./Service/scripts" ]; then
-    #       mkdir -p ./dist/bucket/publish/scripts
-    #       cp -r ./Service/scripts/* ./dist/bucket/publish/scripts/
-    #       echo "Copied scripts to publish directory"
-    #     else
-    #       echo "Scripts directory not found at ./Service/scripts"
-    #       exit 1
-    #     fi
+#     - name: Restore Dependencies
+#       run: dotnet restore ./Service/src/Api/Api.csproj
 
-    # - name: Upload Bucket Artifact
-    #   uses: actions/upload-artifact@v4
-    #   with:
-    #     name: bucket
-    #     path: ./dist/bucket/publish
+#     - name: Build Project
+#       run: dotnet build ./Service/src/Api/Api.csproj --configuration Release --no-restore
+
+#     - name: Publish as Self-Contained
+#       run: dotnet publish ./Service/src/Api/Api.csproj --configuration Release --runtime linux-x64 --self-contained true --output ./dist/axs/publish
+
