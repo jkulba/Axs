@@ -6,6 +6,8 @@ using Application.Authorization.Commands;
 using Application.Behaviors;
 using Application.Common;
 using Application.Interfaces;
+using Application.Users.Commands;
+using Application.Users.Queries;
 using Domain.Common;
 using Domain.Entities;
 using FluentValidation;
@@ -44,6 +46,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IQueryHandler<GetActivityByIdQuery, Result<Activity>>, GetActivityByIdQueryHandler>();
         services.AddScoped<IQueryHandler<GetActivitiesQuery, Result<IEnumerable<Activity>>>, GetActivitiesQueryHandler>();
 
+        services.AddScoped<IQueryHandler<GetUserByIdQuery, Result<User>>, GetUserByIdQueryHandler>();
+        services.AddScoped<IQueryHandler<GetUserByUserIdQuery, Result<User>>, GetUserByUserIdQueryHandler>();
+        services.AddScoped<IQueryHandler<GetUsersQuery, Result<IEnumerable<User>>>, GetUsersQueryHandler>();
+
         // Register Command Handlers here
         services.AddScoped<ICommandHandler<CreateAccessRequestCommand, Result<AccessRequest>>, CreateAccessRequestCommandHandler>();
         services.AddScoped<ICommandHandler<DeleteAccessRequestCommand, Result<int>>, DeleteAccessRequestCommandHandler>();
@@ -51,6 +57,10 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<ICommandHandler<CreateActivityCommand, Result<Activity>>, CreateActivityCommandHandler>();
         services.AddScoped<ICommandHandler<UpdateActivityCommand, Result<Activity>>, UpdateActivityCommandHandler>();
+
+        services.AddScoped<ICommandHandler<CreateUserCommand, Result<User>>, CreateUserCommandHandler>();
+        services.AddScoped<ICommandHandler<UpdateUserCommand, Result<User>>, UpdateUserCommandHandler>();
+        services.AddScoped<ICommandHandler<DeleteUserCommand, Result<int>>, DeleteUserCommandHandler>();
 
 
         return services;

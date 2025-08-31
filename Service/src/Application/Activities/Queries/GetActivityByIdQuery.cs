@@ -1,3 +1,3 @@
 namespace Application.Activities.Queries;
 
-public record GetActivityByIdQuery(int ActivityId);
+public record GetActivityByIdQuery(int Id);

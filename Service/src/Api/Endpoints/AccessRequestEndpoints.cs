@@ -47,7 +47,7 @@ internal static class AccessRequestEndpoints
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error retrieving access request with ID {RequestId}", id);
+                logger.LogError(ex, "Error retrieving access request with ID {Id}", id);
                 return Results.Problem("Internal server error", statusCode: 500);
             }
         })
@@ -57,7 +57,7 @@ internal static class AccessRequestEndpoints
         .WithTags("AccessRequests")
         .WithOpenApi();
 
-        app.MapGet("/api/access-requests/by-request-code/{requestCode:guid}", async (Guid requestCode, IQueryDispatcher queryDispatcher, ILogger<IEndpointRouteBuilder> logger) =>
+        app.MapGet("/api/access-requests/request-code/{requestCode:guid}", async (Guid requestCode, IQueryDispatcher queryDispatcher, ILogger<IEndpointRouteBuilder> logger) =>
         {
             try
             {
@@ -79,7 +79,7 @@ internal static class AccessRequestEndpoints
         .WithTags("AccessRequests")
         .WithOpenApi();
 
-        app.MapGet("/api/access-requests/by-job-number/{jobNumber:int}", async (int jobNumber, IQueryDispatcher queryDispatcher, ILogger<IEndpointRouteBuilder> logger) =>
+        app.MapGet("/api/access-requests/job-number/{jobNumber:int}", async (int jobNumber, IQueryDispatcher queryDispatcher, ILogger<IEndpointRouteBuilder> logger) =>
         {
             try
             {
@@ -105,7 +105,7 @@ internal static class AccessRequestEndpoints
         .WithTags("AccessRequests")
         .WithOpenApi();
 
-        app.MapGet("/api/access-requests/by-user/{userName}", async (string userName, IQueryDispatcher queryDispatcher, ILogger<IEndpointRouteBuilder> logger) =>
+        app.MapGet("/api/access-requests/user/{userName}", async (string userName, IQueryDispatcher queryDispatcher, ILogger<IEndpointRouteBuilder> logger) =>
         {
             try
             {
@@ -136,7 +136,7 @@ internal static class AccessRequestEndpoints
             try
             {
                 var result = await commandDispatcher.Dispatch<CreateAccessRequestCommand, Result<AccessRequest>>(command, default);
-                return result.IsSuccess ? Results.Created($"/api/access-requests/{result.Value.RequestId}", result.Value) : result.ToProblemDetails();
+                return result.IsSuccess ? Results.Created($"/api/access-requests/{result.Value.Id}", result.Value) : result.ToProblemDetails();
             }
             catch (ValidationException validationEx)
             {
@@ -161,9 +161,9 @@ internal static class AccessRequestEndpoints
         .WithTags("AccessRequests")
         .WithOpenApi();
 
-        app.MapDelete("/api/access-requests/{requestId:int}", async (int requestId, ICommandDispatcher commandDispatcher, ILogger<IEndpointRouteBuilder> logger) =>
+        app.MapDelete("/api/access-requests/{id:int}", async (int id, ICommandDispatcher commandDispatcher, ILogger<IEndpointRouteBuilder> logger) =>
         {
-            var command = new DeleteAccessRequestCommand(requestId);
+            var command = new DeleteAccessRequestCommand(id);
             var result = await commandDispatcher.Dispatch<DeleteAccessRequestCommand, Result<int>>(command, default);
             return result.IsSuccess ? Results.NoContent() : result.ToProblemDetails();
         })

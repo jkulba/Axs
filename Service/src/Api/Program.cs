@@ -84,6 +84,7 @@ app.UseStaticFiles();
 app.MapAccessRequestEndpoints();
 app.MapActivityEndpoints();
 app.MapAuthorizationEndpoints();
+app.MapUserEndpoints();
 
 app.MapGet("/api/version", async () =>
 {

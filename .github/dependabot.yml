@@ -1,0 +1,88 @@
+version: 2
+
+updates:
+  # .NET Dependencies for Service project
+  - package-ecosystem: "nuget"
+    directory: "/Service"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "jkulba"
+    assignees:
+      - "jkulba"
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps-dev"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "dotnet"
+    groups:
+      # Group Microsoft packages together
+      microsoft-packages:
+        patterns:
+          - "Microsoft.*"
+          - "System.*"
+        exclude-patterns:
+          - "Microsoft.NETCore.App"
+      # Group FluentValidation updates
+      fluentvalidation-packages:
+        patterns:
+          - "FluentValidation*"
+      # Group EntityFramework packages
+      entityframework-packages:
+        patterns:
+          - "Microsoft.EntityFrameworkCore*"
+      # Group testing packages
+      testing-packages:
+        patterns:
+          - "*Test*"
+          - "xunit*"
+          - "Moq*"
+          - "FluentAssertions*"
+          - "Bogus*"
+      # Group major version updates separately
+      major-updates:
+        update-types:
+          - "version-update:semver-major"
+
+  # GitHub Actions workflow dependencies
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "jkulba"
+    assignees:
+      - "jkulba"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "github-actions"
+
+  # Docker dependencies (if any Dockerfiles exist in Service directory)
+  - package-ecosystem: "docker"
+    directory: "/Service"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "jkulba"
+    assignees:
+      - "jkulba"
+    commit-message:
+      prefix: "docker"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "docker"

@@ -17,12 +17,12 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
 
     public virtual async Task<T?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        return await _dbSet.FindAsync(new object[] { id }, cancellationToken);
+        return await _dbSet.AsNoTracking().FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id, cancellationToken);
     }
 
     public virtual async Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await _dbSet.ToListAsync(cancellationToken);
+        return await _dbSet.AsNoTracking().ToListAsync(cancellationToken);
     }
 
     public virtual async Task<T> AddAsync(T entity, CancellationToken cancellationToken = default)
@@ -52,7 +52,6 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
 
     public virtual async Task<bool> ExistsAsync(int id, CancellationToken cancellationToken = default)
     {
-        var entity = await _dbSet.FindAsync(new object[] { id }, cancellationToken);
-        return entity != null;
+        return await _dbSet.AsNoTracking().AnyAsync(e => EF.Property<int>(e, "Id") == id, cancellationToken);
     }
 }

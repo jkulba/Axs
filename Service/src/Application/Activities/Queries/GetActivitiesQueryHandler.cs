@@ -27,7 +27,7 @@ public class GetActivitiesQueryHandler : IQueryHandler<GetActivitiesQuery, Resul
             if (results == null || !results.Any())
             {
                 _logger.LogWarning("No activities found");
-                return Result<IEnumerable<Activity>>.Failure(ActivityErrors.ActivityNotFound);
+                return Result<IEnumerable<Activity>>.Failure(ActivityErrors.ActivitiesNotFound);
             }
             return Result<IEnumerable<Activity>>.Success(results);
         }

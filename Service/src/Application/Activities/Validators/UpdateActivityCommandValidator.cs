@@ -7,7 +7,7 @@ public class UpdateActivityCommandValidator : AbstractValidator<UpdateActivityCo
 {
     public UpdateActivityCommandValidator()
     {
-        RuleFor(x => x.ActivityId)
+        RuleFor(x => x.Id)
             .GreaterThan(0)
             .WithMessage("Activity ID must be greater than 0.");
 

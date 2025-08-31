@@ -5,7 +5,7 @@ namespace Domain.Entities;
 
 public class AccessRequest
 {
-    public int RequestId { get; set; }
+    public int Id { get; set; }
 
     public Guid RequestCode { get; set; }
 

@@ -23,7 +23,7 @@ public class GetAccessRequestByRequestCodeQueryHandler : IQueryHandler<GetAccess
 
             if (accessRequest == null)
             {
-                return Result<AccessRequest>.Failure(AccessRequestErrors.AccessRequestsNotFound);
+                return Result<AccessRequest>.Failure(AccessRequestErrors.AccessRequestByRequestCodeNotFound(query.RequestCode));
             }
             return Result<AccessRequest>.Success(accessRequest);
         }

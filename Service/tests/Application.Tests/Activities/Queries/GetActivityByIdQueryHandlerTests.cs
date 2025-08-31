@@ -27,7 +27,7 @@ public class GetActivityByIdQueryHandlerTests
         var query = new GetActivityByIdQuery(activityId);
         var expectedActivity = new Activity
         {
-            ActivityId = activityId,
+            Id = activityId,
             ActivityCode = "ACT001",
             ActivityName = "Test Activity",
             Description = "Test Description",
@@ -44,7 +44,7 @@ public class GetActivityByIdQueryHandlerTests
         // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal(expectedActivity, result.Value);
-        Assert.Equal(activityId, result.Value.ActivityId);
+        Assert.Equal(activityId, result.Value.Id);
         Assert.Equal("ACT001", result.Value.ActivityCode);
         Assert.Equal("Test Activity", result.Value.ActivityName);
         Assert.Equal("Test Description", result.Value.Description);
@@ -71,8 +71,8 @@ public class GetActivityByIdQueryHandlerTests
 
         // Assert
         Assert.False(result.IsSuccess);
-        Assert.Equal(ActivityErrors.ActivityNotFound.Code, result.Error.Code);
-        Assert.Equal(ActivityErrors.ActivityNotFound.Description, result.Error.Description);
+        Assert.Equal(ActivityErrors.ActivityByIdNotFound(activityId).Code, result.Error.Code);
+        Assert.Equal(ActivityErrors.ActivityByIdNotFound(activityId).Description, result.Error.Description);
 
         _mockActivityRepository.Verify(
             x => x.GetByIdAsync(activityId, It.IsAny<CancellationToken>()),
@@ -80,13 +80,13 @@ public class GetActivityByIdQueryHandlerTests
     }
 
     [Fact]
-    public async Task Handle_WithValidActivityId_ShouldCallRepositoryWithCorrectParameters()
+    public async Task Handle_WithValidId_ShouldCallRepositoryWithCorrectParameters()
     {
         // Arrange
         var activityId = 42;
         var query = new GetActivityByIdQuery(activityId);
         var cancellationToken = new CancellationToken();
-        var activity = new Activity { ActivityId = activityId };
+        var activity = new Activity { Id = activityId };
 
         _mockActivityRepository
             .Setup(x => x.GetByIdAsync(activityId, cancellationToken))
@@ -127,7 +127,7 @@ public class GetActivityByIdQueryHandlerTests
     [InlineData(0)]
     [InlineData(-1)]
     [InlineData(int.MaxValue)]
-    public async Task Handle_WithVariousActivityIds_ShouldPassCorrectIdToRepository(int activityId)
+    public async Task Handle_WithVariousIds_ShouldPassCorrectIdToRepository(int activityId)
     {
         // Arrange
         var query = new GetActivityByIdQuery(activityId);
@@ -153,7 +153,7 @@ public class GetActivityByIdQueryHandlerTests
         var query = new GetActivityByIdQuery(activityId);
         var expectedActivity = new Activity
         {
-            ActivityId = activityId,
+            Id = activityId,
             ActivityCode = "MIN",
             ActivityName = "Minimal Activity",
             Description = null, // Testing null description
@@ -170,7 +170,7 @@ public class GetActivityByIdQueryHandlerTests
         // Assert
         Assert.True(result.IsSuccess);
         Assert.Equal(expectedActivity, result.Value);
-        Assert.Equal(activityId, result.Value.ActivityId);
+        Assert.Equal(activityId, result.Value.Id);
         Assert.Equal("MIN", result.Value.ActivityCode);
         Assert.Equal("Minimal Activity", result.Value.ActivityName);
         Assert.Null(result.Value.Description);
@@ -183,7 +183,7 @@ public class GetActivityByIdQueryHandlerTests
         // Arrange
         var activityId = 1;
         var query = new GetActivityByIdQuery(activityId);
-        var activity = new Activity { ActivityId = activityId };
+        var activity = new Activity { Id = activityId };
 
         _mockActivityRepository
             .Setup(x => x.GetByIdAsync(activityId, It.IsAny<CancellationToken>()))
