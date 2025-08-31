@@ -51,7 +51,32 @@ jobs:
       run: dotnet build ${{ env.SOLUTION_PATH }} --configuration ${{ matrix.configuration }} --no-restore
 
     - name: Run unit tests
-      run: dotnet test ${{ env.SOLUTION_PATH }} --configuration ${{ matrix.configuration }} --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
+      run: dotnet test ${{ env.SOLUTION_PATH }} --configuration ${{ matrix.configuration }} --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage --settings coverlet.runsettings
+
+    - name: Install ReportGenerator (Release only)
+      if: matrix.configuration == 'Release'
+      run: dotnet tool install --global dotnet-reportgenerator-globaltool
+
+    - name: Generate human-readable coverage report (Release only)
+      if: matrix.configuration == 'Release'
+      run: |
+        reportgenerator \
+          -reports:"coverage/**/coverage.cobertura.xml" \
+          -targetdir:"coverage-report" \
+          -reporttypes:"Html;HtmlSummary;Badges;TextSummary;MarkdownSummary;Cobertura" \
+          -title:"Axs Service Code Coverage Report" \
+          -tag:"${{ github.run_number }}-${{ github.sha }}"
+
+    - name: Display coverage summary in console (Release only)
+      if: matrix.configuration == 'Release'
+      run: |
+        echo "=== CODE COVERAGE SUMMARY ==="
+        if [ -f "coverage-report/Summary.txt" ]; then
+          cat coverage-report/Summary.txt
+        else
+          echo "Coverage summary not found"
+        fi
+        echo "================================"
 
     - name: Upload coverage reports to Codecov
       if: matrix.configuration == 'Release'
@@ -63,15 +88,25 @@ jobs:
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-    - name: Upload test results
+    - name: Upload test results and coverage reports
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: test-results-${{ matrix.configuration }}
+        name: test-and-coverage-results-${{ matrix.configuration }}
         path: |
           ./coverage
+          ./coverage-report
           **/TestResults/**/*.xml
           **/TestResults/**/*.trx
+        retention-days: 30
+
+    - name: Upload human-readable coverage report (Release only)
+      if: matrix.configuration == 'Release'
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report-html
+        path: ./coverage-report
+        retention-days: 30
 
   security-scan:
     name: Security Scan
@@ -121,14 +156,24 @@ jobs:
     - name: Build solution
       run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore
 
-    - name: Run unit tests with coverage
-      run: dotnet test ${{ env.SOLUTION_PATH }} --configuration Release --no-build --collect:"XPlat Code Coverage" --results-directory ./coverage
+    - name: Download coverage reports from build job
+      uses: actions/download-artifact@v4
+      with:
+        name: test-and-coverage-results-Release
+        path: ./coverage-artifacts
 
     - name: Install ReportGenerator
       run: dotnet tool install --global dotnet-reportgenerator-globaltool
 
-    - name: Generate coverage report
-      run: reportgenerator -reports:"coverage/**/coverage.cobertura.xml" -targetdir:"coverage/report" -reporttypes:"Html;Badges"
+    - name: Generate detailed coverage analysis
+      run: |
+        reportgenerator \
+          -reports:"coverage-artifacts/coverage/**/coverage.cobertura.xml" \
+          -targetdir:"detailed-coverage" \
+          -reporttypes:"Html;HtmlSummary;Badges;TextSummary;MarkdownSummary;JsonSummary;SvgChart" \
+          -title:"Axs Service Detailed Coverage Analysis" \
+          -tag:"${{ github.run_number }}-${{ github.sha }}" \
+          -historydir:"coverage-history"
 
     - name: Upload coverage reports to Codecov (Free for public repos)
       if: github.event.repository.private == false
@@ -152,35 +197,58 @@ jobs:
         echo "Build completed with built-in Roslyn analyzers" >> analysis-summary.md
         echo "" >> analysis-summary.md
         echo "### Coverage Report" >> analysis-summary.md
-        echo "Coverage reports generated in ./coverage/report/" >> analysis-summary.md
+        echo "Detailed coverage reports generated in ./detailed-coverage/" >> analysis-summary.md
+        echo "" >> analysis-summary.md
+        if [ -f "detailed-coverage/Summary.txt" ]; then
+          echo "#### Coverage Summary" >> analysis-summary.md
+          echo '```' >> analysis-summary.md
+          cat detailed-coverage/Summary.txt >> analysis-summary.md
+          echo '```' >> analysis-summary.md
+        fi
         echo "" >> analysis-summary.md
         echo "### Security Analysis" >> analysis-summary.md
         dotnet list ${{ env.SOLUTION_PATH }} package --vulnerable --include-transitive >> analysis-summary.md || echo "No vulnerabilities found" >> analysis-summary.md
 
-    - name: Upload coverage report
+    - name: Upload detailed coverage and analysis reports
       uses: actions/upload-artifact@v4
       with:
-        name: coverage-report
+        name: detailed-analysis-reports
         path: |
-          coverage/report/
+          detailed-coverage/
           analysis-summary.md
+          coverage-history/
         retention-days: 30
+
+    - name: Create coverage summary for PR comment
+      if: github.event_name == 'pull_request'
+      run: |
+        if [ -f "detailed-coverage/Summary.txt" ]; then
+          echo "COVERAGE_SUMMARY<<EOF" >> $GITHUB_ENV
+          echo "## 📊 Code Coverage Report" >> $GITHUB_ENV
+          echo "" >> $GITHUB_ENV
+          echo '```' >> $GITHUB_ENV
+          cat detailed-coverage/Summary.txt >> $GITHUB_ENV
+          echo '```' >> $GITHUB_ENV
+          echo "" >> $GITHUB_ENV
+          echo "📈 [View detailed coverage report in artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+        else
+          echo "COVERAGE_SUMMARY=## 📊 Code Coverage Report\n\nCoverage data not available for this run." >> $GITHUB_ENV
+        fi
 
     - name: Comment coverage on PR
       if: github.event_name == 'pull_request'
       uses: actions/github-script@v7
       with:
         script: |
-          const fs = require('fs');
-          const path = require('path');
-          
-          // Read coverage summary if available
-          let coverageComment = "## 📊 Code Quality Report\n\n";
-          coverageComment += "✅ Build completed successfully\n";
-          coverageComment += "✅ All tests passed\n";
-          coverageComment += "✅ Static analysis completed\n";
-          coverageComment += "✅ Security scan completed\n\n";
-          coverageComment += "📈 Coverage report available in build artifacts\n";
+          const coverageComment = process.env.COVERAGE_SUMMARY || `## 📊 Code Quality Report
+
+          ✅ Build completed successfully
+          ✅ All tests passed
+          ✅ Static analysis completed
+          ✅ Security scan completed
+
+          📈 Coverage report available in build artifacts`;
           
           github.rest.issues.createComment({
             issue_number: context.issue.number,
