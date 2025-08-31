@@ -72,32 +72,27 @@ jobs:
           dotnet test ${{ env.SOLUTION_PATH }} --configuration ${{ matrix.configuration }} --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
         fi
     
-# jobs:
-#   build:
-#     name: Build and Test
-#     runs-on: ubuntu-latest
+    - name: Install ReportGenerator (Release only)
+      if: matrix.configuration == 'Release'
+      run: dotnet tool install --global dotnet-reportgenerator-globaltool
 
-#     steps:
-#     - uses: actions/checkout@v5
-#       with:
-#         fetch-depth: 0
+    - name: Generate human-readable coverage report (Release only)
+      if: matrix.configuration == 'Release'
+      run: |
+        reportgenerator \
+          -reports:"coverage/**/coverage.cobertura.xml" \
+          -targetdir:"coverage-report" \
+          -reporttypes:"Html;HtmlSummary;Badges;TextSummary;MarkdownSummary;Cobertura" \
+          -title:"Axs Service Code Coverage Report" \
+          -tag:"${{ github.run_number }}-${{ github.sha }}"
 
-#     - name: Setup .NET SDK
-#       uses: actions/setup-dotnet@v4
-#       with:
-#         dotnet-version: 9.0.x
-
-#     - name: Generate Version Info
-#       run: |
-#         # Run the version script to generate version information
-#         ./Service/version.sh
-
-#     - name: Restore Dependencies
-#       run: dotnet restore ./Service/src/Api/Api.csproj
-
-#     - name: Build Project
-#       run: dotnet build ./Service/src/Api/Api.csproj --configuration Release --no-restore
-
-#     - name: Publish as Self-Contained
-#       run: dotnet publish ./Service/src/Api/Api.csproj --configuration Release --runtime linux-x64 --self-contained true --output ./dist/axs/publish
-
+    - name: Display coverage summary in console (Release only)
+      if: matrix.configuration == 'Release'
+      run: |
+        echo "=== CODE COVERAGE SUMMARY ==="
+        if [ -f "coverage-report/Summary.txt" ]; then
+          cat coverage-report/Summary.txt
+        else
+          echo "Coverage summary not found"
+        fi
+        echo "================================"
