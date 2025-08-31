@@ -57,30 +57,90 @@ jobs:
           ${{ runner.os }}-nuget-
 
     - name: Restore dependencies
-      run: dotnet restore ${{ env.SOLUTION_PATH }}
+      run: |
+        echo "=== Restoring NuGet packages ==="
+        dotnet restore ${{ env.SOLUTION_PATH }}
+        echo "=== Verifying coverage packages ==="
+        dotnet list ${{ env.SOLUTION_PATH }} package | grep -i coverlet || echo "No coverlet packages found - may need manual installation"
 
     - name: Build solution
       run: dotnet build ${{ env.SOLUTION_PATH }} --configuration ${{ matrix.configuration }} --no-restore
 
-    - name: Run unit tests
+    - name: Setup coverage tools and run tests
       run: |
-        echo "=== Running tests with coverage collection ==="
+        echo "=== Installing coverage tools ==="
+        dotnet tool install --global coverlet.console --version 6.0.2 || echo "Coverlet console already installed"
+        
+        echo "=== Test Execution Environment ==="
+        echo "Working directory: $(pwd)"
+        echo "Solution path: ${{ env.SOLUTION_PATH }}"
+        echo "Configuration: ${{ matrix.configuration }}"
+        
+        echo "=== Checking Solution Structure ==="
+        ls -la ${{ env.SOLUTION_PATH }}
+        
+        echo "=== Checking for Test Projects ==="
+        find ./Service -name "*.Tests.csproj" -o -name "*Tests.csproj" | head -5
+        
+        echo "=== Running tests with detailed coverage collection ==="
+        # First try with coverlet settings
         if [ -f "./Service/coverlet.runsettings" ]; then
           echo "Using coverlet.runsettings configuration"
-          dotnet test ${{ env.SOLUTION_PATH }} --configuration ${{ matrix.configuration }} --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage --settings ./Service/coverlet.runsettings
+          echo "Settings file content:"
+          cat ./Service/coverlet.runsettings
+          
+          dotnet test ${{ env.SOLUTION_PATH }} \
+            --configuration ${{ matrix.configuration }} \
+            --no-build \
+            --verbosity detailed \
+            --collect:"XPlat Code Coverage" \
+            --results-directory ./coverage \
+            --settings ./Service/coverlet.runsettings \
+            --logger "console;verbosity=detailed"
         else
-          echo "Running tests without coverlet.runsettings"
-          dotnet test ${{ env.SOLUTION_PATH }} --configuration ${{ matrix.configuration }} --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
+          echo "Running tests without coverlet.runsettings - using default coverage collection"
+          dotnet test ${{ env.SOLUTION_PATH }} \
+            --configuration ${{ matrix.configuration }} \
+            --no-build \
+            --verbosity detailed \
+            --collect:"XPlat Code Coverage" \
+            --results-directory ./coverage \
+            --logger "console;verbosity=detailed"
         fi
         
-        echo "=== Post-test coverage directory analysis ==="
+        echo "=== Post-test analysis ==="
+        echo "Test exit code: $?"
+        echo "Coverage directory structure:"
         if [ -d "./coverage" ]; then
-          echo "Coverage directory exists:"
-          find ./coverage -type f -name "*.xml" | head -10
-          echo "Total XML files found: $(find ./coverage -name "*.xml" -type f | wc -l)"
-          echo "Cobertura files found: $(find ./coverage -name "*cobertura*" -type f | wc -l)"
+          find ./coverage -type f -ls
+          echo "=== All files in coverage directory ==="
+          find ./coverage -type f
+          echo "=== XML files specifically ==="
+          find ./coverage -name "*.xml" -type f
+          echo "=== Coverage file content check ==="
+          find ./coverage -name "*.xml" -type f -exec echo "File: {}" \; -exec head -5 {} \;
         else
-          echo "ERROR: Coverage directory was not created"
+          echo "ERROR: Coverage directory ./coverage does not exist!"
+          echo "=== Checking current directory contents ==="
+          ls -la ./
+          echo "=== Looking for any coverage files anywhere ==="
+          find . -name "*coverage*" -type f 2>/dev/null || echo "No coverage files found anywhere"
+          
+          echo "=== Trying alternative coverage collection ==="
+          echo "Attempting to run tests again with different parameters..."
+          dotnet test ${{ env.SOLUTION_PATH }} \
+            --configuration ${{ matrix.configuration }} \
+            --no-build \
+            --collect:"Code Coverage" \
+            --results-directory ./coverage-alt \
+            --verbosity detailed
+          
+          if [ -d "./coverage-alt" ]; then
+            echo "Alternative coverage collection succeeded:"
+            find ./coverage-alt -type f
+          else
+            echo "Alternative coverage collection also failed"
+          fi
         fi
     
     - name: Install ReportGenerator (Release only)
