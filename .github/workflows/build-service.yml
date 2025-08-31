@@ -140,20 +140,29 @@ jobs:
 
     - name: Upload test results and coverage reports
       if: always()
+      run: |
+        echo "=== Checking what to upload ==="
+        if [ -d "./coverage" ] && [ "$(find ./coverage -type f | wc -l)" -gt 0 ]; then
+          echo "Coverage directory has files, will upload"
+          find ./coverage -type f | head -5
+        else
+          echo "No coverage files to upload"
+        fi
+
+    - name: Upload coverage data (if exists)
+      if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: test-and-coverage-results-${{ matrix.configuration }}
-        path: |
-          ./coverage
-          ./coverage-report
-          **/TestResults/**/*.xml
-          **/TestResults/**/*.trx
+        name: coverage-data-${{ matrix.configuration }}
+        path: ./coverage
         retention-days: 30
+        if-no-files-found: ignore
 
-    - name: Upload human-readable coverage report (Release only)
-      if: matrix.configuration == 'Release' && always()
+    - name: Upload coverage report (Release only)
+      if: matrix.configuration == 'Release'
       uses: actions/upload-artifact@v4
       with:
         name: coverage-report-html
         path: ./coverage-report
         retention-days: 30
+        if-no-files-found: ignore
