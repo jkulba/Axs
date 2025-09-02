@@ -1,13 +1,13 @@
-@Api_HostAddress = http://localhost:5277
+@Api_HostAddress = http://localhost:5001
 
 # Get AccessRequest by ID
-GET {{Api_HostAddress}}/api/AccessRequests/5
+GET {{Api_HostAddress}}/api/access-requests/5
 Accept: application/json
 
 ###
 
 # Get All AccessRequests
-GET {{Api_HostAddress}}/api/AccessRequests
+GET {{Api_HostAddress}}/api/access-requests
 Accept: application/json
 
 ###
