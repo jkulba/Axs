@@ -1,6 +1,6 @@
 {
-  "name": "Client",
-  "short_name": "Client",
+  "name": "AccessClient",
+  "short_name": "AccessClient",
   "id": "./",
   "start_url": "./",
   "display": "standalone",
@@ -9,14 +9,19 @@
   "prefer_related_applications": false,
   "icons": [
     {
-      "src": "icon-512.png",
+      "src": "access-512x512.png",
       "type": "image/png",
       "sizes": "512x512"
     },
     {
-      "src": "icon-192.png",
+      "src": "access-192x192.png",
       "type": "image/png",
       "sizes": "192x192"
+    },
+    {
+      "src": "access-32x32.png",
+      "type": "image/png",
+      "sizes": "32x32"
     }
   ]
 }
