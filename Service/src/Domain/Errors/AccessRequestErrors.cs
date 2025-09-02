@@ -16,9 +16,6 @@ public static class AccessRequestErrors
     public static Error AccessRequestByUserNameNotFound(string userName) => new(
         "AccessRequests.AccessRequestByUserNameNotFound", $"Access request for User Name = '{userName}' was not found");
 
-    public static Error AccessRequestByUserIdNotFound(int userId) => new(
-        "AccessRequests.AccessRequestByUserIdNotFound", $"Access request for User ID = '{userId}' was not found");
-
     public static Error AccessRequestByJobNumberNotFound(int jobNumber) => new(
         "AccessRequests.AccessRequestByJobNumberNotFound", $"Access request for Job Number = '{jobNumber}' was not found");
 

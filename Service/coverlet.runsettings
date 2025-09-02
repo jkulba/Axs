@@ -7,7 +7,7 @@
           <Format>cobertura,opencover,json</Format>
           <ExcludeByFile>**/bin/**,**/obj/**</ExcludeByFile>
           <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute,ExcludeFromCodeCoverageAttribute</ExcludeByAttribute>
-          <Exclude>[*.Tests]*,[*Tests]*</Exclude>
+          <Exclude>[*.Tests]*,[*Tests]*,[*]Infrastructure.Migrations*</Exclude>
           <IncludeTestAssembly>false</IncludeTestAssembly>
         </Configuration>
       </DataCollector>

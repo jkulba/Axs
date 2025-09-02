@@ -1,0 +1,136 @@
+name: Question or Help Request
+description: Ask a question or request help with using the Axs Access Control Service
+title: "[QUESTION] "
+labels: ["question", "help-wanted"]
+assignees:
+  - jkulba
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Need help or have a question? We're here to assist! Please provide as much detail as possible to help us give you the best answer.
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      description: What would you like to know or what help do you need?
+      placeholder: Ask your question in detail. Be specific about what you're trying to achieve.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Question Category
+      description: What area does your question relate to?
+      options:
+        - Setup and Installation
+        - API Usage
+        - Authentication/Authorization
+        - Database Configuration
+        - Development Environment
+        - Deployment
+        - Troubleshooting
+        - Best Practices
+        - Architecture/Design
+        - Testing
+        - Performance
+        - Security
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context and Background
+      description: Provide context about what you're trying to accomplish
+      placeholder: |
+        - What are you trying to achieve?
+        - What is your use case?
+        - What have you tried so far?
+        - What specific challenges are you facing?
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-setup
+    attributes:
+      label: Current Setup
+      description: Describe your current environment and configuration
+      placeholder: |
+        - Operating system and version
+        - .NET version
+        - Database type and version
+        - Any relevant configuration
+        - Deployment environment (if applicable)
+
+  - type: textarea
+    id: attempted-solutions
+    attributes:
+      label: What Have You Tried?
+      description: What solutions or approaches have you already attempted?
+      placeholder: |
+        - Steps you've taken
+        - Resources you've consulted
+        - Error messages you've encountered
+        - Partial solutions that didn't work
+
+  - type: textarea
+    id: expected-outcome
+    attributes:
+      label: Expected Outcome
+      description: What result are you hoping to achieve?
+      placeholder: Describe what success looks like for your situation
+
+  - type: textarea
+    id: code-samples
+    attributes:
+      label: Relevant Code or Configuration
+      description: Share any relevant code, configuration, or error messages
+      render: shell
+      placeholder: |
+        Include any relevant:
+        - Code snippets
+        - Configuration files
+        - Error messages
+        - Log output
+        - API requests/responses
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: Urgency
+      description: How urgent is this question for you?
+      options:
+        - Low - General curiosity or future planning
+        - Medium - Would help improve current work
+        - High - Needed to complete current task
+        - Critical - Blocking immediate work
+
+  - type: textarea
+    id: research
+    attributes:
+      label: Research Done
+      description: What documentation or resources have you already checked?
+      placeholder: |
+        - Documentation sections reviewed
+        - Online resources consulted
+        - Similar issues searched
+        - Community forums checked
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please verify the following before submitting
+      options:
+        - label: I have searched existing issues for similar questions
+          required: true
+        - label: I have checked the available documentation
+          required: true
+        - label: I have provided sufficient context and details
+          required: true
+        - label: I have described what I've already tried
+          required: true

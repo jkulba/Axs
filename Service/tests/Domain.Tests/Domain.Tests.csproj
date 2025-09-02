@@ -6,6 +6,14 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>Domain.Tests</RootNamespace>
     <TargetFramework>net9.0</TargetFramework>
+    
+    <!-- Coverlet Configuration -->
+    <CollectCoverage>true</CollectCoverage>
+    <CoverletOutputFormat>cobertura,opencover,json</CoverletOutputFormat>
+    <Exclude>[*.Tests]*,[*Tests]*,[*]Infrastructure.Migrations*</Exclude>
+    <ExcludeByFile>**/bin/**,**/obj/**</ExcludeByFile>
+    <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute,ExcludeFromCodeCoverageAttribute</ExcludeByAttribute>
+    
     <!--
     To enable the Microsoft Testing Platform 'dotnet test' experience, add property:
       <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
@@ -31,6 +39,8 @@
     <PackageReference Include="xunit.v3" />
     <PackageReference Include="xunit.runner.visualstudio" />
     <PackageReference Include="FluentValidation" />
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="coverlet.msbuild" />
   </ItemGroup>
 
   <ItemGroup>

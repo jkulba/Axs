@@ -1,0 +1,110 @@
+name: Bug Report
+description: Report a bug or unexpected behavior in the Axs Access Control Service
+title: "[BUG] "
+labels: ["bug", "triage"]
+assignees:
+  - jkulba
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the information below to help us understand and reproduce the issue.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is
+      placeholder: Describe what happened and what you expected to happen
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Detailed steps to reproduce the behavior
+      placeholder: |
+        1. Go to...
+        2. Click on...
+        3. Execute...
+        4. See error...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What you expected to happen
+      placeholder: Describe the expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened
+      placeholder: Describe what actually happened instead
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which component of the Axs system is affected?
+      options:
+        - API (Service endpoints)
+        - Application Layer (Commands/Queries)
+        - Infrastructure (Database/Repositories)
+        - Domain (Entities/Business Logic)
+        - Documentation
+        - Build/CI
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment Information
+      description: Please provide details about your environment
+      placeholder: |
+        - OS: [e.g., Windows 11, Ubuntu 22.04]
+        - .NET Version: [e.g., .NET 9.0]
+        - Database: [e.g., SQL Server 2022, SQLite]
+        - Browser: [if web-related, e.g., Chrome 120]
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error Logs/Output
+      description: If applicable, add relevant error logs, stack traces, or console output
+      render: shell
+      placeholder: Paste any relevant logs here
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context about the problem here
+      placeholder: Screenshots, configuration files, related issues, etc.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please verify the following before submitting
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate
+          required: true
+        - label: I have provided a clear description of the problem
+          required: true
+        - label: I have included steps to reproduce the issue
+          required: true
+        - label: I have specified the affected component
+          required: true

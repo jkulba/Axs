@@ -6,6 +6,13 @@
     <Nullable>enable</Nullable>
 
     <IsPackable>false</IsPackable>
+    
+    <!-- Coverlet Configuration -->
+    <CollectCoverage>true</CollectCoverage>
+    <CoverletOutputFormat>cobertura,opencover,json</CoverletOutputFormat>
+    <Exclude>[*.Tests]*,[*Tests]*,[*]Infrastructure.Migrations*</Exclude>
+    <ExcludeByFile>**/bin/**,**/obj/**</ExcludeByFile>
+    <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute,ExcludeFromCodeCoverageAttribute</ExcludeByAttribute>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +21,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
     <PackageReference Include="xunit.v3" />
     <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="coverlet.msbuild" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,0 +1,228 @@
+name: "Build Axs Service"
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'Service/**'
+  pull_request:
+    branches:
+      - main
+      - develop
+      - release/*
+    paths:
+      - 'Service/**'
+  workflow_dispatch:
+
+env:
+    DOTNET_CLI_TELEMETRY_OPTOUT: 1
+    DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+    DOTNET_NOLOGO: true
+    DOTNET_GENERATE_ASPNET_CERTIFICATE: false
+    DOTNET_ADD_GLOBAL_TOOLS_TO_PATH: false
+    DOTNET_MULTILEVEL_LOOKUP: 0
+    DOTNET_SYSTEM_CONSOLE_ALLOW_ANSI_COLOR_REDIRECTION: true
+    TERM: xterm
+    DOTNET_VERSION: '9.0.x'
+    SOLUTION_PATH: './Service/Service.sln'
+  
+jobs:
+  build-and-test:
+    name: Build and Test Service
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+
+    - name: Restore dependencies
+      run: |
+        echo "=== Restoring NuGet packages ==="
+        dotnet restore ${{ env.SOLUTION_PATH }}
+        echo "=== Verifying coverage packages ==="
+        dotnet list ${{ env.SOLUTION_PATH }} package | grep -i coverlet || echo "No coverlet packages found - may need manual installation"
+
+    - name: Build solution
+      run: dotnet build ${{ env.SOLUTION_PATH }} --configuration ${{ matrix.configuration }} --no-restore
+
+    - name: Setup coverage tools and run tests
+      run: |
+        echo "=== Installing coverage tools ==="
+        dotnet tool install --global coverlet.console --version 6.0.2 || echo "Coverlet console already installed"
+        
+        echo "=== Test Execution Environment ==="
+        echo "Working directory: $(pwd)"
+        echo "Solution path: ${{ env.SOLUTION_PATH }}"
+        echo "Configuration: ${{ matrix.configuration }}"
+        
+        echo "=== Checking Solution Structure ==="
+        ls -la ${{ env.SOLUTION_PATH }}
+        
+        echo "=== Checking for Test Projects ==="
+        find ./Service -name "*.Tests.csproj" -o -name "*Tests.csproj" | head -5
+        
+        echo "=== Running tests with detailed coverage collection ==="
+        # First try with coverlet settings
+        if [ -f "./Service/coverlet.runsettings" ]; then
+          echo "Using coverlet.runsettings configuration"
+          echo "Settings file content:"
+          cat ./Service/coverlet.runsettings
+          
+          dotnet test ${{ env.SOLUTION_PATH }} \
+            --configuration ${{ matrix.configuration }} \
+            --no-build \
+            --verbosity detailed \
+            --collect:"XPlat Code Coverage" \
+            --results-directory ./coverage \
+            --settings ./Service/coverlet.runsettings \
+            --logger "console;verbosity=detailed"
+        else
+          echo "Running tests without coverlet.runsettings - using default coverage collection"
+          dotnet test ${{ env.SOLUTION_PATH }} \
+            --configuration ${{ matrix.configuration }} \
+            --no-build \
+            --verbosity detailed \
+            --collect:"XPlat Code Coverage" \
+            --results-directory ./coverage \
+            --logger "console;verbosity=detailed"
+        fi
+        
+        echo "=== Post-test analysis ==="
+        echo "Test exit code: $?"
+        echo "Coverage directory structure:"
+        if [ -d "./coverage" ]; then
+          find ./coverage -type f -ls
+          echo "=== All files in coverage directory ==="
+          find ./coverage -type f
+          echo "=== XML files specifically ==="
+          find ./coverage -name "*.xml" -type f
+          echo "=== Coverage file content check ==="
+          find ./coverage -name "*.xml" -type f -exec echo "File: {}" \; -exec head -5 {} \;
+        else
+          echo "ERROR: Coverage directory ./coverage does not exist!"
+          echo "=== Checking current directory contents ==="
+          ls -la ./
+          echo "=== Looking for any coverage files anywhere ==="
+          find . -name "*coverage*" -type f 2>/dev/null || echo "No coverage files found anywhere"
+          
+          echo "=== Trying alternative coverage collection ==="
+          echo "Attempting to run tests again with different parameters..."
+          dotnet test ${{ env.SOLUTION_PATH }} \
+            --configuration ${{ matrix.configuration }} \
+            --no-build \
+            --collect:"Code Coverage" \
+            --results-directory ./coverage-alt \
+            --verbosity detailed
+          
+          if [ -d "./coverage-alt" ]; then
+            echo "Alternative coverage collection succeeded:"
+            find ./coverage-alt -type f
+          else
+            echo "Alternative coverage collection also failed"
+          fi
+        fi
+    
+    - name: Install ReportGenerator (Release only)
+      if: matrix.configuration == 'Release'
+      run: dotnet tool install --global dotnet-reportgenerator-globaltool
+
+    - name: Generate human-readable coverage report (Release only)
+      if: matrix.configuration == 'Release'
+      run: |
+        echo "=== Searching for coverage files ==="
+        find ./coverage -name "*.xml" -type f 2>/dev/null || echo "No XML files found in coverage directory"
+        find ./coverage -name "*cobertura*" -type f 2>/dev/null || echo "No Cobertura files found"
+        
+        echo "=== Coverage directory structure ==="
+        ls -la ./coverage/ 2>/dev/null || echo "Coverage directory does not exist"
+        find ./coverage -type f 2>/dev/null || echo "No files found in coverage directory"
+        
+        echo "=== Attempting to generate coverage report ==="
+        # Try multiple file patterns to find coverage files
+        COVERAGE_FILES=""
+        if find ./coverage -name "*cobertura*" -type f | grep -q .; then
+          COVERAGE_FILES="./coverage/**/*cobertura*.xml"
+          echo "Found cobertura files using pattern: $COVERAGE_FILES"
+        elif find ./coverage -name "coverage.xml" -type f | grep -q .; then
+          COVERAGE_FILES="./coverage/**/coverage.xml"
+          echo "Found coverage.xml files using pattern: $COVERAGE_FILES"
+        elif find ./coverage -name "*.xml" -type f | grep -q .; then
+          COVERAGE_FILES="./coverage/**/*.xml"
+          echo "Found XML files using pattern: $COVERAGE_FILES"
+        fi
+        
+        if [ ! -z "$COVERAGE_FILES" ]; then
+          echo "Generating coverage report with files: $COVERAGE_FILES"
+          reportgenerator \
+            -reports:"$COVERAGE_FILES" \
+            -targetdir:"coverage-report" \
+            -reporttypes:"Html;HtmlSummary;Badges;TextSummary;MarkdownSummary;Cobertura" \
+            -title:"Axs Service Code Coverage Report" \
+            -tag:"${{ github.run_number }}-${{ github.sha }}"
+        else
+          echo "No coverage files found, creating placeholder report..."
+          mkdir -p coverage-report
+          echo "No coverage data available for this build." > coverage-report/Summary.txt
+          echo "<html><body><h1>No Coverage Data</h1><p>Coverage collection failed or no tests were run.</p></body></html>" > coverage-report/index.html
+        fi
+
+    - name: Display coverage summary in console (Release only)
+      if: matrix.configuration == 'Release'
+      run: |
+        echo "=== CODE COVERAGE SUMMARY ==="
+        if [ -f "coverage-report/Summary.txt" ]; then
+          cat coverage-report/Summary.txt
+        else
+          echo "Coverage summary not found"
+        fi
+        echo "================================"
+
+    - name: Upload test results and coverage reports
+      if: always()
+      run: |
+        echo "=== Checking what to upload ==="
+        if [ -d "./coverage" ] && [ "$(find ./coverage -type f | wc -l)" -gt 0 ]; then
+          echo "Coverage directory has files, will upload"
+          find ./coverage -type f | head -5
+        else
+          echo "No coverage files to upload"
+        fi
+
+    - name: Upload coverage data (if exists)
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-data-${{ matrix.configuration }}
+        path: ./coverage
+        retention-days: 30
+        if-no-files-found: ignore
+
+    - name: Upload coverage report (Release only)
+      if: matrix.configuration == 'Release'
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report-html
+        path: ./coverage-report
+        retention-days: 30
+        if-no-files-found: ignore
