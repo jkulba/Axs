@@ -5,13 +5,168 @@
 <PageTitle>ProFile Access - Access Requests</PageTitle>
 
 <h1 style="display: flex; align-items: center; gap: 0.5rem;">
-    <FluentIcon Value="@(new Icons.Regular.Size24.DatabaseSearch())" Color="Color.Accent" />
+    <FluentIcon Value="@(new Icons.Regular.Size32.DatabaseSearch())" Color="Color.Accent" />
     Access Requests
 </h1>
 
+<div class="search-container">
+    <FluentCard class="search-card">
+        <div class="search-header">
+            <FluentIcon Value="@(new Icons.Regular.Size20.Search())" Color="Color.Neutral" />
+            <h3>Search Access Requests</h3>
+        </div>
 
-Hello Joe
+        <div class="search-form">
+            <FluentGrid>
+                <FluentGridItem xs="12" md="8">
+                    <FluentTextField @bind-Value="searchTerm"
+                        Placeholder="Search by user name, request ID, or resource..."
+                        Appearance="FluentInputAppearance.Outline" style="width: 100%;">
+                        <FluentIcon Value="@(new Icons.Regular.Size16.Search())" Slot="start" />
+                    </FluentTextField>
+                </FluentGridItem>
+
+                <FluentGridItem xs="12" md="2">
+                    <FluentSelect TOption="string" @bind-Value="statusFilter" Appearance="Appearance.Outline"
+                        style="width: 100%;">
+                        <FluentOption TOption="string" Value="">All Status</FluentOption>
+                        <FluentOption TOption="string" Value="pending">Pending</FluentOption>
+                        <FluentOption TOption="string" Value="approved">Approved</FluentOption>
+                        <FluentOption TOption="string" Value="denied">Denied</FluentOption>
+                        <FluentOption TOption="string" Value="expired">Expired</FluentOption>
+                    </FluentSelect>
+                </FluentGridItem>
+
+                <FluentGridItem xs="12" md="2">
+                    <div class="search-actions">
+                        <FluentButton @onclick="PerformSearch" Appearance="Appearance.Accent"
+                            IconStart="@(new Icons.Regular.Size16.Search())" style="width: 100%;">
+                            Search
+                        </FluentButton>
+                    </div>
+                </FluentGridItem>
+            </FluentGrid>
+
+            <div class="advanced-search-toggle" style="margin-top: 12px;">
+                <FluentButton @onclick="ToggleAdvancedSearch" Appearance="Appearance.Stealth"
+                    IconStart="@(showAdvancedSearch ? new Icons.Regular.Size16.ChevronUp() : new Icons.Regular.Size16.ChevronDown())">
+                    @(showAdvancedSearch ? "Hide" : "Show") Advanced Search
+                </FluentButton>
+            </div>
+
+            @if (showAdvancedSearch)
+            {
+                <div class="advanced-search-panel"
+                    style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--neutral-stroke-divider);">
+                    <FluentGrid>
+                        <FluentGridItem xs="12" md="4">
+                            <FluentDatePicker @bind-Value="fromDate" Label="From Date"
+                                Appearance="FluentInputAppearance.Outline" />
+                        </FluentGridItem>
+
+                        <FluentGridItem xs="12" md="4">
+                            <FluentDatePicker @bind-Value="toDate" Label="To Date"
+                                Appearance="FluentInputAppearance.Outline" />
+                        </FluentGridItem>
+
+                        <FluentGridItem xs="12" md="4">
+                            <FluentSelect TOption="string" @bind-Value="departmentFilter" Label="Department"
+                                Appearance="Appearance.Outline">
+                                <FluentOption TOption="string" Value="">All Departments</FluentOption>
+                                <FluentOption TOption="string" Value="hr">Human Resources</FluentOption>
+                                <FluentOption TOption="string" Value="it">Information Technology</FluentOption>
+                                <FluentOption TOption="string" Value="finance">Finance</FluentOption>
+                                <FluentOption TOption="string" Value="operations">Operations</FluentOption>
+                            </FluentSelect>
+                        </FluentGridItem>
+                    </FluentGrid>
+
+                    <div style="margin-top: 12px; display: flex; gap: 8px; justify-content: flex-end;">
+                        <FluentButton @onclick="ClearAdvancedFilters" Appearance="Appearance.Stealth">
+                            Clear Filters
+                        </FluentButton>
+                        <FluentButton @onclick="PerformSearch" Appearance="Appearance.Accent"
+                            IconStart="@(new Icons.Regular.Size16.Search())">
+                            Apply Filters
+                        </FluentButton>
+                    </div>
+                </div>
+            }
+        </div>
+    </FluentCard>
+</div>
+
+<style>
+    .search-container {
+        margin-bottom: 24px;
+    }
+
+    .search-card {
+        padding: 24px;
+        margin-bottom: 16px;
+    }
+
+    .search-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+
+    .search-header h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--neutral-foreground-rest);
+    }
+
+    .search-form .fluent-grid-item {
+        padding: 4px;
+    }
+
+    .search-actions {
+        display: flex;
+        align-items: flex-end;
+        height: 100%;
+    }
+
+    .advanced-search-toggle {
+        text-align: left;
+    }
+
+    .advanced-search-panel {
+        background-color: var(--neutral-layer-2);
+        border-radius: 6px;
+        padding: 16px;
+    }
+</style>
 
 @code {
-    // You can add C# code here if needed
+    private string searchTerm = string.Empty;
+    private string statusFilter = string.Empty;
+    private string departmentFilter = string.Empty;
+    private DateTime? fromDate;
+    private DateTime? toDate;
+    private bool showAdvancedSearch = false;
+
+    private void PerformSearch()
+    {
+        // TODO: Implement search logic
+        // This will be called when the search button is clicked
+        // You can add your search implementation here
+    }
+
+    private void ToggleAdvancedSearch()
+    {
+        showAdvancedSearch = !showAdvancedSearch;
+    }
+
+    private void ClearAdvancedFilters()
+    {
+        fromDate = null;
+        toDate = null;
+        departmentFilter = string.Empty;
+        statusFilter = string.Empty;
+        searchTerm = string.Empty;
+    }
 }
