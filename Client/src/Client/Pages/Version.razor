@@ -4,7 +4,11 @@
 
 <PageTitle>ProFile Access - Build Version</PageTitle>
 
-<h1>Version Info</h1>
+<h1 style="display: flex; align-items: center; gap: 0.5rem;">
+    <FluentIcon Value="@(new Icons.Regular.Size32.Tag())" Color="Color.Accent" />
+    Version Info
+</h1>
+
 
 @if (_versionInfo == null)
 {
