@@ -105,7 +105,7 @@ internal static class AccessRequestEndpoints
         .WithTags("AccessRequests")
         .WithOpenApi();
 
-        app.MapGet("/api/access-requests/user/{userName}", async (string userName, IQueryDispatcher queryDispatcher, ILogger<IEndpointRouteBuilder> logger) =>
+        app.MapGet("/api/access-requests/user-name/{userName}", async (string userName, IQueryDispatcher queryDispatcher, ILogger<IEndpointRouteBuilder> logger) =>
         {
             try
             {
