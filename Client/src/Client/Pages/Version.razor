@@ -1,0 +1,52 @@
+@page "/version"
+@using Client.Components.VersionInfo
+@inject VersionInfoService VersionInfoService
+
+<PageTitle>ProFile Access - Build Version</PageTitle>
+
+<h1>Version Info</h1>
+
+@if (_versionInfo == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <style>
+        .key-value-container {
+            display: flex;
+            flex-direction: column;
+            margin: 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        .key-value-pair {
+            margin-bottom: 10px;
+        }
+
+        .key {
+            font-weight: bold;
+        }
+    </style>
+    <div class="key-value-container">
+        <div class="key-value-pair"> <span class="key">Build Number:</span> <span
+                class="value">@(_versionInfo.BuildNumber)</span> </div>
+        <div class="key-value-pair"> <span class="key">Build Date:</span> <span
+                class="value">@(_versionInfo.BuildDate)</span> </div>
+        <div class="key-value-pair"> <span class="key">Git Branch:</span> <span
+                class="value">@(_versionInfo.GitBranch)</span> </div>
+        <div class="key-value-pair"> <span class="key">Commit Hash:</span> <span
+                class="value">@(_versionInfo.CommitHash)</span> </div>
+        <div class="key-value-pair"> <span class="key">Build Host:</span> <span
+                class="value">@(_versionInfo.BuildHost)</span> </div>
+    </div>
+}
+
+@code {
+    private Components.VersionInfo.VersionInfo? _versionInfo;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _versionInfo = await VersionInfoService.GetVersionInfo();
+    }
+}
