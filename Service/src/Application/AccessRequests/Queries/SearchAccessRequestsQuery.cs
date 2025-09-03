@@ -1,0 +1,3 @@
+namespace Application.AccessRequests.Queries;
+
+public record SearchAccessRequestsQuery(AccessRequestSearchParameters SearchParameters);
