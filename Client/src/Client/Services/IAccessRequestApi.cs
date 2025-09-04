@@ -5,6 +5,15 @@ namespace Client.Services;
 
 public interface IAccessRequestApi
 {
+
+    // Create new Access Request
+    [Post("/api/access-requests")]
+    Task<AccessRequest> CreateAccessRequestAsync([Body] AccessRequest newAccessRequest, CancellationToken cancellationToken = default);
+
+    // Delete an Access Request
+    [Delete("/api/access-requests/{id}")]
+    Task DeleteAccessRequestAsync(int id, CancellationToken cancellationToken = default);
+
     [Get("/api/access-requests/search")]
     Task<IEnumerable<AccessRequest>> SearchAccessRequestsQuery([Query] AccessRequestSearchParameters parameters, CancellationToken cancellationToken = default);
 
