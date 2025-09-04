@@ -20,7 +20,6 @@ public class UserTests
         Assert.Null(user.DisplayName);
         Assert.Null(user.PrincipalName);
         Assert.True(user.IsEnabled); // Default value is true
-        Assert.Equal(DateTime.MinValue, user.LastUpdated);
         Assert.Equal(DateTime.MinValue, user.UtcCreatedAt);
         Assert.Null(user.CreatedByNum);
         Assert.Null(user.UtcUpdatedAt);
@@ -41,7 +40,6 @@ public class UserTests
         var displayName = "John Doe";
         var principalName = "john.doe@company.com";
         var isEnabled = false;
-        var lastUpdated = DateTime.UtcNow.AddDays(-1);
         var utcCreatedAt = DateTime.UtcNow.AddDays(-2);
         var createdByNum = "12345";
         var utcUpdatedAt = DateTime.UtcNow;
@@ -56,7 +54,6 @@ public class UserTests
             DisplayName = displayName,
             PrincipalName = principalName,
             IsEnabled = isEnabled,
-            LastUpdated = lastUpdated,
             UtcCreatedAt = utcCreatedAt,
             CreatedByNum = createdByNum,
             UtcUpdatedAt = utcUpdatedAt,
@@ -70,7 +67,6 @@ public class UserTests
         Assert.Equal(displayName, user.DisplayName);
         Assert.Equal(principalName, user.PrincipalName);
         Assert.Equal(isEnabled, user.IsEnabled);
-        Assert.Equal(lastUpdated, user.LastUpdated);
         Assert.Equal(utcCreatedAt, user.UtcCreatedAt);
         Assert.Equal(createdByNum, user.CreatedByNum);
         Assert.Equal(utcUpdatedAt, user.UtcUpdatedAt);
@@ -89,7 +85,6 @@ public class UserTests
             DisplayName = "Test User",
             PrincipalName = "test.user@company.com",
             IsEnabled = true,
-            LastUpdated = DateTime.UtcNow,
             UtcCreatedAt = DateTime.UtcNow,
             CreatedByNum = null,
             UtcUpdatedAt = null,
@@ -122,7 +117,7 @@ public class UserTests
         Assert.NotNull(user.Authorizations);
         Assert.IsType<List<Authorization>>(user.Authorizations);
         Assert.Empty(user.Authorizations);
-        
+
         Assert.NotNull(user.UserGroupMemberships);
         Assert.IsType<List<UserGroupMember>>(user.UserGroupMemberships);
         Assert.Empty(user.UserGroupMemberships);
@@ -298,14 +293,12 @@ public class UserTests
         var user = new User
         {
             UtcCreatedAt = createdAt,
-            CreatedByNum = createdBy,
-            LastUpdated = createdAt
+            CreatedByNum = createdBy
         };
 
         // Assert
         Assert.Equal(createdAt, user.UtcCreatedAt);
         Assert.Equal(createdBy, user.CreatedByNum);
-        Assert.Equal(createdAt, user.LastUpdated);
         Assert.Null(user.UtcUpdatedAt);
         Assert.Null(user.UpdatedByNum);
     }
@@ -325,8 +318,7 @@ public class UserTests
             UtcCreatedAt = createdAt,
             CreatedByNum = createdBy,
             UtcUpdatedAt = updatedAt,
-            UpdatedByNum = updatedBy,
-            LastUpdated = updatedAt
+            UpdatedByNum = updatedBy
         };
 
         // Assert
@@ -334,7 +326,6 @@ public class UserTests
         Assert.Equal(createdBy, user.CreatedByNum);
         Assert.Equal(updatedAt, user.UtcUpdatedAt);
         Assert.Equal(updatedBy, user.UpdatedByNum);
-        Assert.Equal(updatedAt, user.LastUpdated);
     }
 
     [Fact]

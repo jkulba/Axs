@@ -1,6 +1,8 @@
 @page "/users"
+@using Client.Services
 
-@inject Client.Services.IAccessRequestApi api
+@inject Client.Services.IUserApi userApi
+@inject IJSRuntime JSRuntime
 
 <PageTitle>ProFile Access - User Management</PageTitle>
 
@@ -9,9 +11,731 @@
     User Management
 </h1>
 
+<!-- User Management Toolbar -->
+<div class="toolbar-container">
+    <FluentCard class="toolbar-card">
+        <div class="toolbar-header">
+            <FluentIcon Value="@(new Icons.Regular.Size20.PersonAdd())" Color="Color.Neutral" />
+            <h3>User Management Actions</h3>
+        </div>
 
-Hello Joe
+        <div class="toolbar-actions">
+            <FluentGrid Spacing="2" AdaptiveRendering="true">
+                <FluentGridItem xs="12" sm="6" md="3" lg="2">
+                    <FluentButton @onclick="ShowCreateUserDialog" Appearance="Appearance.Accent"
+                        IconStart="@(new Icons.Regular.Size16.PersonAdd())" style="width: 100%;">
+                        Create New User
+                    </FluentButton>
+                </FluentGridItem>
+
+                <FluentGridItem xs="12" sm="6" md="4" lg="3">
+                    <FluentTextField @bind-Value="userIdSearch"
+                        Placeholder="Enter User ID to find..."
+                        Appearance="FluentInputAppearance.Outline" style="width: 100%;">
+                        <FluentIcon Value="@(new Icons.Regular.Size16.Person())" Slot="start" />
+                    </FluentTextField>
+                </FluentGridItem>
+
+                <FluentGridItem xs="12" sm="4" md="2" lg="2">
+                    <FluentButton @onclick="FindUserByUserId" Appearance="Appearance.Outline"
+                        IconStart="@(new Icons.Regular.Size16.Search())" style="width: 100%;">
+                        Find by UserId
+                    </FluentButton>
+                </FluentGridItem>
+
+                <FluentGridItem xs="12" sm="4" md="2" lg="2">
+                    <FluentButton @onclick="LoadAllUsers" Appearance="Appearance.Neutral"
+                        IconStart="@(new Icons.Regular.Size16.People())" style="width: 100%;">
+                        Load All Users
+                    </FluentButton>
+                </FluentGridItem>
+
+                <FluentGridItem xs="12" sm="4" md="1" lg="1">
+                    <FluentButton @onclick="ClearResults" Appearance="Appearance.Stealth"
+                        IconStart="@(new Icons.Regular.Size16.Dismiss())" style="width: 100%;">
+                        Clear
+                    </FluentButton>
+                </FluentGridItem>
+            </FluentGrid>
+        </div>
+    </FluentCard>
+</div>
+
+<!-- Search Section -->
+<div class="search-container">
+    <FluentCard class="search-card">
+        <div class="search-header">
+            <FluentIcon Value="@(new Icons.Regular.Size20.Search())" Color="Color.Neutral" />
+            <h3>Search Users</h3>
+        </div>
+
+        <div class="search-form">
+            <FluentGrid Spacing="2" AdaptiveRendering="true">
+                <FluentGridItem xs="12" md="6" lg="6">
+                    <FluentTextField @bind-Value="searchTerm"
+                        Placeholder="Search by user ID, display name, or principal name..."
+                        Appearance="FluentInputAppearance.Outline" style="width: 100%;">
+                        <FluentIcon Value="@(new Icons.Regular.Size16.Search())" Slot="start" />
+                    </FluentTextField>
+                </FluentGridItem>
+
+                <FluentGridItem xs="12" md="3" lg="3">
+                    <FluentSelect TOption="string" @bind-Value="searchType" Appearance="Appearance.Outline"
+                        style="width: 100%;">
+                        <FluentOption TOption="string" Value="">All Fields</FluentOption>
+                        <FluentOption TOption="string" Value="userid">User ID</FluentOption>
+                        <FluentOption TOption="string" Value="displayname">Display Name</FluentOption>
+                        <FluentOption TOption="string" Value="principalname">Principal Name</FluentOption>
+                    </FluentSelect>
+                </FluentGridItem>
+
+                <FluentGridItem xs="12" md="3" lg="3">
+                    <div class="search-actions">
+                        <FluentButton @onclick="PerformSearch" Appearance="Appearance.Accent"
+                            IconStart="@(new Icons.Regular.Size16.Search())" style="width: 100%;">
+                            Search
+                        </FluentButton>
+                    </div>
+                </FluentGridItem>
+            </FluentGrid>
+
+            <div class="advanced-search-toggle" style="margin-top: 12px;">
+                <FluentButton @onclick="ToggleAdvancedSearch" Appearance="Appearance.Stealth"
+                    IconStart="@(showAdvancedSearch ? new Icons.Regular.Size16.ChevronUp() : new Icons.Regular.Size16.ChevronDown())">
+                    @(showAdvancedSearch ? "Hide" : "Show") Advanced Search
+                </FluentButton>
+            </div>
+
+            @if (showAdvancedSearch)
+            {
+                <div class="advanced-search-panel"
+                    style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--neutral-stroke-divider);">
+                    <FluentGrid Spacing="2" AdaptiveRendering="true">
+                        <FluentGridItem xs="12" sm="6" md="4">
+                            <FluentTextField @bind-Value="userIdFilter" Label="User ID" Placeholder="Enter user ID"
+                                Appearance="FluentInputAppearance.Outline" style="width: 100%;" />
+                        </FluentGridItem>
+
+                        <FluentGridItem xs="12" sm="6" md="4">
+                            <FluentTextField @bind-Value="principalNameFilter" Label="Principal Name"
+                                Placeholder="Enter principal name" Appearance="FluentInputAppearance.Outline" style="width: 100%;" />
+                        </FluentGridItem>
+
+                        <FluentGridItem xs="12" sm="12" md="4">
+                            <FluentSelect TOption="string" @bind-Value="enabledStatusFilter" Label="Status" Appearance="Appearance.Outline"
+                                style="width: 100%;">
+                                <FluentOption TOption="string" Value="">All Users</FluentOption>
+                                <FluentOption TOption="string" Value="enabled">Enabled Only</FluentOption>
+                                <FluentOption TOption="string" Value="disabled">Disabled Only</FluentOption>
+                            </FluentSelect>
+                        </FluentGridItem>
+                    </FluentGrid>
+
+                    <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Right" 
+                                 style="margin-top: 16px; gap: 8px;">
+                        <FluentButton @onclick="ClearAdvancedFilters" Appearance="Appearance.Stealth">
+                            Clear Filters
+                        </FluentButton>
+                        <FluentButton @onclick="PerformSearch" Appearance="Appearance.Accent"
+                            IconStart="@(new Icons.Regular.Size16.Search())">
+                            Apply Filters
+                        </FluentButton>
+                    </FluentStack>
+                </div>
+            }
+        </div>
+    </FluentCard>
+</div>
+
+<!-- Loading State -->
+@if (isLoading)
+{
+    <FluentCard style="padding: 24px; text-align: center;">
+        <FluentProgressRing />
+        <p style="margin-top: 16px;">@loadingMessage</p>
+    </FluentCard>
+}
+else if (!string.IsNullOrEmpty(errorMessage))
+{
+    <FluentCard style="padding: 24px; background-color: var(--error-light); border: 1px solid var(--error);">
+        <div style="color: var(--error); font-weight: 600;">
+            Error: @errorMessage
+        </div>
+    </FluentCard>
+}
+else if (searchResults.Any())
+{
+    <FluentCard style="padding: 24px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+            <h3 style="margin: 0;">Users (@searchResults.Count)</h3>
+        </div>
+
+        <FluentDataGrid Items="@searchResults.AsQueryable()" 
+                        GridTemplateColumns="60px 1fr 1.5fr 1.5fr 100px 140px 160px"
+                        style="width: 100%; overflow-x: auto;"
+                        Virtualize="true"
+                        ResizableColumns="true">
+            <PropertyColumn Property="@(u => u.Id)" Title="ID" />
+            <PropertyColumn Property="@(u => u.UserId)" Title="User ID" />
+            <PropertyColumn Property="@(u => u.DisplayName)" Title="Display Name" />
+            <PropertyColumn Property="@(u => u.PrincipalName)" Title="Principal Name" />
+            <TemplateColumn Title="Status" Class="status-column">
+                <ChildContent Context="user">
+                    @if (user.IsEnabled)
+                    {
+                        <FluentBadge Appearance="Appearance.Accent" BackgroundColor="var(--success)" Color="white">Enabled</FluentBadge>
+                    }
+                    else
+                    {
+                        <FluentBadge Appearance="Appearance.Neutral" BackgroundColor="var(--error)" Color="white">Disabled</FluentBadge>
+                    }
+                </ChildContent>
+            </TemplateColumn>
+            <TemplateColumn Title="Last Updated" Class="date-column">
+                <ChildContent Context="user">
+                    @if (user.UtcUpdatedAt.HasValue)
+                    {
+                        @user.UtcUpdatedAt.Value.ToString("yyyy-MM-dd HH:mm")
+                    }
+                    else
+                    {
+                        @user.UtcCreatedAt.ToString("yyyy-MM-dd HH:mm")
+                    }
+                </ChildContent>
+            </TemplateColumn>
+            <TemplateColumn Title="Actions" Class="actions-column">
+                <ChildContent Context="user">
+                    <div class="action-buttons">
+                        <FluentButton @onclick="() => ShowEditUserDialog(user)" Appearance="Appearance.Outline"
+                            IconStart="@(new Icons.Regular.Size16.Edit())" class="action-btn edit-btn">
+                            Edit
+                        </FluentButton>
+                        <FluentButton @onclick="() => ShowDeleteUserDialog(user)" Appearance="Appearance.Outline"
+                            IconStart="@(new Icons.Regular.Size16.Delete())" class="action-btn delete-btn">
+                            Del
+                        </FluentButton>
+                    </div>
+                </ChildContent>
+            </TemplateColumn>
+        </FluentDataGrid>
+    </FluentCard>
+}
+
+<!-- Create/Edit User Dialog -->
+@if (showUserDialog)
+{
+    <FluentDialog @ref="userDialog" Modal="true" @onclose="CloseUserDialog">
+        <FluentDialogHeader>
+            <h3>@(isEditMode ? "Edit User" : "Create New User")</h3>
+        </FluentDialogHeader>
+        
+        <FluentDialogBody>
+            <FluentGrid Spacing="3" AdaptiveRendering="true">
+                <FluentGridItem xs="12" sm="6">
+                    <FluentTextField @bind-Value="currentUser.UserId" Label="User ID" Required="true"
+                        Appearance="FluentInputAppearance.Outline" style="width: 100%;" />
+                </FluentGridItem>
+                
+                <FluentGridItem xs="12" sm="6">
+                    <FluentTextField @bind-Value="currentUser.DisplayName" Label="Display Name" Required="true"
+                        Appearance="FluentInputAppearance.Outline" style="width: 100%;" />
+                </FluentGridItem>
+                
+                <FluentGridItem xs="12">
+                    <FluentTextField @bind-Value="currentUser.PrincipalName" Label="Principal Name" Required="true"
+                        Appearance="FluentInputAppearance.Outline" style="width: 100%;" />
+                </FluentGridItem>
+                
+                <FluentGridItem xs="12" sm="6">
+                    <FluentTextField @bind-Value="currentUser.GraphId" Label="Graph ID" Required="true"
+                        Appearance="FluentInputAppearance.Outline" style="width: 100%;" />
+                </FluentGridItem>
+                
+                <FluentGridItem xs="12" sm="6">
+                    <div style="display: flex; align-items: center; height: 100%;">
+                        <FluentSwitch @bind-Value="currentUser.IsEnabled" Label="Enabled" />
+                    </div>
+                </FluentGridItem>
+            </FluentGrid>
+        </FluentDialogBody>
+        
+        <FluentDialogFooter>
+            <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Right" style="gap: 8px;">
+                <FluentButton @onclick="CloseUserDialog" Appearance="Appearance.Stealth">
+                    Cancel
+                </FluentButton>
+                <FluentButton @onclick="SaveUser" Appearance="Appearance.Accent"
+                    IconStart="@(new Icons.Regular.Size16.Save())">
+                    @(isEditMode ? "Update" : "Create") User
+                </FluentButton>
+            </FluentStack>
+        </FluentDialogFooter>
+    </FluentDialog>
+}
+
+<!-- Delete Confirmation Dialog -->
+@if (showDeleteDialog)
+{
+    <FluentDialog @ref="deleteDialog" Modal="true" @onclose="CloseDeleteDialog">
+        <FluentDialogHeader>
+            <h3>Confirm Delete</h3>
+        </FluentDialogHeader>
+        
+        <FluentDialogBody>
+            <p>Are you sure you want to delete the user <strong>@userToDelete?.DisplayName (@userToDelete?.UserId)</strong>?</p>
+            <p style="color: var(--error);">This action cannot be undone.</p>
+        </FluentDialogBody>
+        
+        <FluentDialogFooter>
+            <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Right" style="gap: 8px;">
+                <FluentButton @onclick="CloseDeleteDialog" Appearance="Appearance.Stealth">
+                    Cancel
+                </FluentButton>
+                <FluentButton @onclick="ConfirmDeleteUser" Appearance="Appearance.Accent"
+                    IconStart="@(new Icons.Regular.Size16.Delete())" BackgroundColor="var(--error)">
+                    Delete User
+                </FluentButton>
+            </FluentStack>
+        </FluentDialogFooter>
+    </FluentDialog>
+}
+
+<style>
+    .toolbar-container {
+        margin-bottom: 16px;
+    }
+
+    .toolbar-card {
+        padding: 20px;
+        margin-bottom: 8px;
+    }
+
+    .toolbar-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+    .toolbar-header h3 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--neutral-foreground-rest);
+    }
+
+    .search-container {
+        margin-bottom: 24px;
+    }
+
+    .search-card {
+        padding: 24px;
+        margin-bottom: 16px;
+    }
+
+    .search-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+
+    .search-header h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--neutral-foreground-rest);
+    }
+
+    .search-actions {
+        display: flex;
+        align-items: flex-end;
+        height: 100%;
+    }
+
+    .advanced-search-toggle {
+        text-align: left;
+    }
+
+    .advanced-search-panel {
+        background-color: var(--neutral-layer-2);
+        border-radius: 6px;
+        padding: 16px;
+    }
+
+    /* DataGrid responsive styles */
+    .status-column {
+        text-align: center;
+    }
+
+    .date-column {
+        white-space: nowrap;
+    }
+
+    .actions-column {
+        text-align: center;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: nowrap;
+        width: 100%;
+    }
+
+    .action-btn {
+        font-size: 12px;
+        padding: 4px 8px;
+        min-width: 50px;
+        max-width: 70px;
+        height: 28px;
+        white-space: nowrap;
+        border-width: 1px;
+        flex: 0 1 auto;
+    }
+
+    .action-btn .fluent-icon {
+        font-size: 14px;
+        margin-right: 4px;
+    }
+
+    .edit-btn {
+        color: var(--accent-foreground-rest);
+        border-color: var(--accent-stroke-control-default);
+    }
+
+    .edit-btn:hover {
+        background-color: var(--accent-fill-rest);
+        color: white;
+        border-color: var(--accent-fill-rest);
+    }
+
+    .delete-btn {
+        color: var(--error);
+        border-color: var(--error);
+    }
+
+    .delete-btn:hover {
+        background-color: var(--error);
+        color: white;
+        border-color: var(--error);
+    }
+
+</style>
 
 @code {
-    // You can add C# code here if needed
+    // General search parameters
+    private string searchTerm = string.Empty;
+    private string searchType = string.Empty;
+    private bool showAdvancedSearch = false;
+    private string userIdSearch = string.Empty;
+
+    // User specific search filters
+    private string userIdFilter = string.Empty;
+    private string principalNameFilter = string.Empty;
+    private string enabledStatusFilter = string.Empty;
+
+    // Search results and loading state
+    private List<User> searchResults = new();
+    private bool isLoading = false;
+    private string loadingMessage = "Loading...";
+    private string? errorMessage = null;
+
+    // Dialog and editing state
+    private FluentDialog? userDialog;
+    private FluentDialog? deleteDialog;
+    private bool showUserDialog = false;
+    private bool showDeleteDialog = false;
+    private bool isEditMode = false;
+    private UserEditModel currentUser = new();
+    private User? userToDelete = null;
+
+    private class UserEditModel
+    {
+        public int Id { get; set; }
+        public string GraphId { get; set; } = string.Empty;
+        public string UserId { get; set; } = string.Empty;
+        public string DisplayName { get; set; } = string.Empty;
+        public string PrincipalName { get; set; } = string.Empty;
+        public bool IsEnabled { get; set; } = true;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAllUsers();
+    }
+
+    private async Task LoadAllUsers()
+    {
+        isLoading = true;
+        loadingMessage = "Loading all users...";
+        errorMessage = null;
+
+        try
+        {
+            searchResults = (await userApi.GetAllUsersAsync()).ToList();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading users: {ex.Message}";
+            searchResults.Clear();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task FindUserByUserId()
+    {
+        if (string.IsNullOrWhiteSpace(userIdSearch))
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Please enter a User ID to search for.");
+            return;
+        }
+
+        isLoading = true;
+        loadingMessage = $"Finding user with ID: {userIdSearch}";
+        errorMessage = null;
+
+        try
+        {
+            var user = await userApi.GetUserByUserIdAsync(userIdSearch);
+            searchResults = new List<User> { user };
+            userIdSearch = string.Empty; // Clear the search field
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error finding user by ID '{userIdSearch}': {ex.Message}";
+            searchResults.Clear();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task PerformSearch()
+    {
+        isLoading = true;
+        loadingMessage = "Searching users...";
+        errorMessage = null;
+
+        try
+        {
+            // For now, we'll load all users and filter client-side
+            // In a real application, you might want to implement server-side filtering
+            var allUsers = await userApi.GetAllUsersAsync();
+            
+            var filteredUsers = allUsers.AsEnumerable();
+
+            // Apply search term filter
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                filteredUsers = searchType switch
+                {
+                    "userid" => filteredUsers.Where(u => u.UserId.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)),
+                    "displayname" => filteredUsers.Where(u => u.DisplayName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)),
+                    "principalname" => filteredUsers.Where(u => u.PrincipalName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)),
+                    _ => filteredUsers.Where(u => 
+                        u.UserId.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                        u.DisplayName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                        u.PrincipalName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                };
+            }
+
+            // Apply advanced filters
+            if (!string.IsNullOrWhiteSpace(userIdFilter))
+            {
+                filteredUsers = filteredUsers.Where(u => u.UserId.Contains(userIdFilter, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrWhiteSpace(principalNameFilter))
+            {
+                filteredUsers = filteredUsers.Where(u => u.PrincipalName.Contains(principalNameFilter, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrWhiteSpace(enabledStatusFilter))
+            {
+                filteredUsers = enabledStatusFilter switch
+                {
+                    "enabled" => filteredUsers.Where(u => u.IsEnabled),
+                    "disabled" => filteredUsers.Where(u => !u.IsEnabled),
+                    _ => filteredUsers
+                };
+            }
+
+            searchResults = filteredUsers.ToList();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error performing search: {ex.Message}";
+            searchResults.Clear();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ToggleAdvancedSearch()
+    {
+        showAdvancedSearch = !showAdvancedSearch;
+    }
+
+    private void ClearAdvancedFilters()
+    {
+        // Clear all search filters
+        searchTerm = string.Empty;
+        searchType = string.Empty;
+        userIdFilter = string.Empty;
+        principalNameFilter = string.Empty;
+        enabledStatusFilter = string.Empty;
+        userIdSearch = string.Empty;
+
+        // Clear results and error
+        searchResults.Clear();
+        errorMessage = null;
+    }
+
+    private void ClearResults()
+    {
+        searchResults.Clear();
+        errorMessage = null;
+    }
+
+    private void ShowCreateUserDialog()
+    {
+        isEditMode = false;
+        currentUser = new UserEditModel();
+        showUserDialog = true;
+    }
+
+    private void ShowEditUserDialog(User user)
+    {
+        isEditMode = true;
+        currentUser = new UserEditModel
+        {
+            Id = user.Id,
+            GraphId = user.GraphId,
+            UserId = user.UserId,
+            DisplayName = user.DisplayName,
+            PrincipalName = user.PrincipalName,
+            IsEnabled = user.IsEnabled
+        };
+        showUserDialog = true;
+    }
+
+    private void ShowDeleteUserDialog(User user)
+    {
+        userToDelete = user;
+        showDeleteDialog = true;
+    }
+
+    private void CloseUserDialog()
+    {
+        showUserDialog = false;
+        currentUser = new UserEditModel();
+    }
+
+    private void CloseDeleteDialog()
+    {
+        showDeleteDialog = false;
+        userToDelete = null;
+    }
+
+    private async Task SaveUser()
+    {
+        if (string.IsNullOrWhiteSpace(currentUser.UserId) || 
+            string.IsNullOrWhiteSpace(currentUser.DisplayName) || 
+            string.IsNullOrWhiteSpace(currentUser.PrincipalName) ||
+            string.IsNullOrWhiteSpace(currentUser.GraphId))
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Please fill in all required fields.");
+            return;
+        }
+
+        isLoading = true;
+        loadingMessage = isEditMode ? "Updating user..." : "Creating user...";
+        errorMessage = null;
+
+        try
+        {
+            if (isEditMode)
+            {
+                var userToUpdate = new User(
+                    currentUser.Id,
+                    currentUser.GraphId,
+                    currentUser.UserId,
+                    currentUser.DisplayName,
+                    currentUser.PrincipalName,
+                    currentUser.IsEnabled,
+                    DateTime.UtcNow,
+                    null,
+                    DateTime.UtcNow,
+                    null
+                );
+
+                await userApi.UpdateUserAsync(currentUser.Id, userToUpdate);
+                await JSRuntime.InvokeVoidAsync("alert", "User updated successfully!");
+            }
+            else
+            {
+                var newUser = new User(
+                    0, // ID will be assigned by the server
+                    currentUser.GraphId,
+                    currentUser.UserId,
+                    currentUser.DisplayName,
+                    currentUser.PrincipalName,
+                    currentUser.IsEnabled,
+                    DateTime.UtcNow,
+                    null,
+                    null,
+                    null
+                );
+
+                await userApi.CreateUserAsync(newUser);
+                await JSRuntime.InvokeVoidAsync("alert", "User created successfully!");
+            }
+
+            CloseUserDialog();
+            await LoadAllUsers(); // Refresh the user list
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error {(isEditMode ? "updating" : "creating")} user: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task ConfirmDeleteUser()
+    {
+        if (userToDelete == null) return;
+
+        isLoading = true;
+        loadingMessage = "Deleting user...";
+        errorMessage = null;
+
+        try
+        {
+            await userApi.DeleteUserAsync(userToDelete.Id);
+            await JSRuntime.InvokeVoidAsync("alert", "User deleted successfully!");
+            
+            CloseDeleteDialog();
+            await LoadAllUsers(); // Refresh the user list
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error deleting user: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
 }

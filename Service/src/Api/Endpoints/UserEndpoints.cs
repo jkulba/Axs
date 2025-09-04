@@ -100,12 +100,6 @@ internal static class UserEndpoints
         {
             var query = new GetUsersQuery();
             var result = await queryDispatcher.Dispatch<GetUsersQuery, Result<IEnumerable<User>>>(query, default);
-
-            // if (result.IsNotFound)
-            // {
-            //     return Results.NotFound($"Users not found.");
-            // }
-
             return result.IsSuccess ? Results.Ok(result.Value) : result.ToProblemDetails();
 
         })

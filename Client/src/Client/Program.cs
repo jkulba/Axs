@@ -26,5 +26,12 @@ builder.Services.AddRefitClient<IAccessRequestApi>()
         client.BaseAddress = new Uri("http://localhost:5001");
     });
 
+// Register Refit client for IUserApi
+builder.Services.AddRefitClient<IUserApi>()
+    .ConfigureHttpClient(client =>
+    {
+        client.BaseAddress = new Uri("http://localhost:5001");
+    });
+
 
 await builder.Build().RunAsync();

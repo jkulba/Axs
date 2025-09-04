@@ -47,7 +47,6 @@ public record User(
     string DisplayName,
     string PrincipalName,
     bool IsEnabled,
-    DateTime LastUpdated,
     DateTime UtcCreatedAt,
     string? CreatedByNum,
     DateTime? UtcUpdatedAt,
