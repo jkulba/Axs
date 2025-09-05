@@ -18,11 +18,15 @@ public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand, Resul
     {
         var user = new User
         {
-            GraphId = command.GraphId,
-            UserId = command.UserId,
+            GraphId = Guid.NewGuid().ToString(),
+            UserId = command.UserId.ToUpperInvariant(),
             DisplayName = command.DisplayName,
             PrincipalName = command.PrincipalName,
-            IsEnabled = command.IsEnabled
+            IsEnabled = command.IsEnabled,
+            UtcCreatedAt = DateTime.UtcNow,
+            CreatedByNum = "829468",
+            UtcUpdatedAt = null,
+            UpdatedByNum = null
         };
 
         await _userRepository.AddAsync(user, cancellationToken);

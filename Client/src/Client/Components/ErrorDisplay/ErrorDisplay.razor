@@ -1,0 +1,340 @@
+@using Client.Services
+@using Microsoft.AspNetCore.Components
+@using Microsoft.FluentUI.AspNetCore.Components
+
+@if (ErrorInfo != null)
+{
+    <FluentCard class="error-card">
+        <div class="error-header">
+            <FluentIcon Value="@(new Icons.Regular.Size20.ErrorCircle())" Color="Color.Custom" CustomColor="var(--error)" />
+            <h4 class="error-title">Error Occurred</h4>
+            @if (ShowDetails)
+            {
+                <FluentButton @onclick="ToggleDetails" Appearance="Appearance.Stealth" class="details-toggle">
+                    @(showDetailedError ? "Hide Details" : "Show Details")
+                </FluentButton>
+            }
+        </div>
+
+        <div class="error-content">
+            <!-- Main Error Message -->
+            <div class="error-message">
+                @if (ErrorInfo.HttpStatusCode.HasValue)
+                {
+                    <FluentBadge Appearance="Appearance.Accent" BackgroundColor="var(--error)" Color="white"
+                        class="status-badge">
+                        HTTP @((int)ErrorInfo.HttpStatusCode.Value)
+                    </FluentBadge>
+                }
+                <div class="message-text">
+                    @if (ErrorInfo.ValidationErrors != null && ErrorInfo.ValidationErrors.Any())
+                    {
+                        <!-- Display validation errors prominently -->
+                        @foreach (var fieldErrors in ErrorInfo.ValidationErrors)
+                        {
+                            <div class="validation-field-errors">
+                                <strong>@fieldErrors.Key:</strong>
+                                <ul class="validation-error-list">
+                                    @foreach (var error in fieldErrors.Value)
+                                    {
+                                        <li>@error</li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+                    }
+                    else if (!string.IsNullOrWhiteSpace(ErrorInfo.ServerErrorMessage))
+                    {
+                        @ErrorInfo.ServerErrorMessage
+                    }
+                    else if (!string.IsNullOrWhiteSpace(ErrorInfo.UserFriendlyMessage))
+                    {
+                        @ErrorInfo.UserFriendlyMessage
+                    }
+                    else
+                    {
+                        @ErrorInfo.ErrorMessage
+                    }
+                </div>
+            </div>
+
+            <!-- Detailed Error Information -->
+            @if (ShowDetails && showDetailedError)
+            {
+                <div class="error-details">
+                    @if (ErrorInfo.HttpStatusCode.HasValue)
+                    {
+                        <div class="detail-item">
+                            <strong>Status Code:</strong> @((int)ErrorInfo.HttpStatusCode.Value) (@ErrorInfo.StatusCodeName)
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(ErrorInfo.ErrorCode))
+                    {
+                        <div class="detail-item">
+                            <strong>Error Code:</strong> @ErrorInfo.ErrorCode
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(ErrorInfo.ErrorType))
+                    {
+                        <div class="detail-item">
+                            <strong>Error Type:</strong> @ErrorInfo.ErrorType
+                        </div>
+                    }
+
+                    @if (ErrorInfo.ValidationErrors != null && ErrorInfo.ValidationErrors.Any())
+                    {
+                        <div class="detail-item">
+                            <strong>Validation Errors:</strong>
+                            <div style="margin-left: 12px; margin-top: 4px;">
+                                @foreach (var fieldErrors in ErrorInfo.ValidationErrors)
+                                {
+                                    <div style="margin-bottom: 6px;">
+                                        <strong style="color: var(--error);">@fieldErrors.Key:</strong>
+                                        <ul style="margin: 2px 0 0 16px; padding: 0;">
+                                            @foreach (var error in fieldErrors.Value)
+                                            {
+                                                <li style="color: var(--error); font-size: 12px;">@error</li>
+                                            }
+                                        </ul>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(ErrorInfo.TraceId))
+                    {
+                        <div class="detail-item">
+                            <strong>Trace ID:</strong> @ErrorInfo.TraceId
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(ErrorInfo.Instance))
+                    {
+                        <div class="detail-item">
+                            <strong>Instance:</strong> @ErrorInfo.Instance
+                        </div>
+                    }
+
+                    <div class="detail-item">
+                        <strong>Timestamp:</strong> @ErrorInfo.Timestamp.ToString("yyyy-MM-dd HH:mm:ss") UTC
+                    </div>
+
+                    @if (ShowRawContent && !string.IsNullOrWhiteSpace(ErrorInfo.RawErrorContent))
+                    {
+                        <details class="raw-content">
+                            <summary><strong>Raw Response Content</strong></summary>
+                            <pre class="raw-content-text">@ErrorInfo.RawErrorContent</pre>
+                        </details>
+                    }
+
+                    @if (ShowException && ErrorInfo.Exception != null)
+                    {
+                        <details class="exception-details">
+                            <summary><strong>Exception Details</strong></summary>
+                            <div class="exception-content">
+                                <div><strong>Type:</strong> @ErrorInfo.Exception.GetType().Name</div>
+                                <div><strong>Message:</strong> @ErrorInfo.Exception.Message</div>
+                                @if (!string.IsNullOrWhiteSpace(ErrorInfo.Exception.StackTrace))
+                                {
+                                    <pre class="stack-trace">@ErrorInfo.Exception.StackTrace</pre>
+                                }
+                            </div>
+                        </details>
+                    }
+                </div>
+            }
+        </div>
+
+        @if (ShowDismiss)
+        {
+            <div class="error-actions">
+                <FluentButton @onclick="OnDismiss" Appearance="Appearance.Stealth"
+                    IconStart="@(new Icons.Regular.Size16.Dismiss())" class="dismiss-btn">
+                    Dismiss
+                </FluentButton>
+            </div>
+        }
+    </FluentCard>
+}
+
+<style>
+    .error-card {
+        background-color: var(--error-light, #fef2f2);
+        border: 1px solid var(--error, #ef4444);
+        border-radius: 6px;
+        padding: 16px;
+        margin: 8px 0;
+    }
+
+    .error-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .error-title {
+        margin: 0;
+        color: var(--error, #ef4444);
+        font-size: 16px;
+        font-weight: 600;
+        flex: 1;
+    }
+
+    .details-toggle {
+        color: var(--error, #ef4444);
+        font-size: 12px;
+    }
+
+    .error-content {
+        margin-bottom: 12px;
+    }
+
+    .error-message {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    .status-badge {
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .message-text {
+        color: var(--error, #ef4444);
+        font-weight: 500;
+        flex: 1;
+    }
+
+    .validation-field-errors {
+        margin-bottom: 8px;
+    }
+
+    .validation-field-errors:last-child {
+        margin-bottom: 0;
+    }
+
+    .validation-field-errors strong {
+        color: var(--error, #ef4444);
+        font-weight: 600;
+        margin-bottom: 4px;
+        display: block;
+    }
+
+    .validation-error-list {
+        margin: 0;
+        padding-left: 16px;
+        color: var(--error, #ef4444);
+        font-weight: 500;
+    }
+
+    .validation-error-list li {
+        margin-bottom: 2px;
+        line-height: 1.3;
+    }
+
+    .validation-error-list li:last-child {
+        margin-bottom: 0;
+    }
+
+    .error-details {
+        background-color: rgba(239, 68, 68, 0.05);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        border-radius: 4px;
+        padding: 12px;
+        font-size: 13px;
+        margin-top: 8px;
+    }
+
+    .detail-item {
+        margin-bottom: 6px;
+        line-height: 1.4;
+    }
+
+    .detail-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .detail-item strong {
+        color: var(--neutral-foreground-rest);
+        display: inline-block;
+        min-width: 100px;
+    }
+
+    .raw-content,
+    .exception-details {
+        margin-top: 8px;
+    }
+
+    .raw-content summary,
+    .exception-details summary {
+        cursor: pointer;
+        font-weight: 600;
+        padding: 4px 0;
+    }
+
+    .raw-content-text {
+        background-color: var(--neutral-layer-2);
+        border: 1px solid var(--neutral-stroke-divider);
+        border-radius: 4px;
+        padding: 8px;
+        margin-top: 4px;
+        font-size: 11px;
+        overflow-x: auto;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    .exception-content {
+        background-color: var(--neutral-layer-2);
+        border: 1px solid var(--neutral-stroke-divider);
+        border-radius: 4px;
+        padding: 8px;
+        margin-top: 4px;
+        font-size: 11px;
+    }
+
+    .stack-trace {
+        background-color: var(--neutral-layer-3);
+        border: 1px solid var(--neutral-stroke-divider);
+        border-radius: 4px;
+        padding: 6px;
+        margin-top: 6px;
+        font-size: 10px;
+        overflow-x: auto;
+        white-space: pre-wrap;
+    }
+
+    .error-actions {
+        display: flex;
+        justify-content: flex-end;
+        padding-top: 8px;
+        border-top: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .dismiss-btn {
+        color: var(--error, #ef4444);
+        font-size: 12px;
+    }
+</style>
+
+@code {
+    [Parameter] public ApiErrorInfo? ErrorInfo { get; set; }
+    [Parameter] public bool ShowDetails { get; set; } = true;
+    [Parameter] public bool ShowRawContent { get; set; } = false;
+    [Parameter] public bool ShowException { get; set; } = false;
+    [Parameter] public bool ShowDismiss { get; set; } = false;
+    [Parameter] public EventCallback OnDismiss { get; set; }
+
+    private bool showDetailedError = false;
+
+    private void ToggleDetails()
+    {
+        showDetailedError = !showDetailedError;
+    }
+}

@@ -1,7 +1,9 @@
 @page "/users"
 @using Client.Services
+@using Microsoft.AspNetCore.Components.Web
 
 @inject Client.Services.IUserApi userApi
+@inject Client.Services.IApiErrorHandlingService errorHandlingService
 @inject IJSRuntime JSRuntime
 
 <PageTitle>ProFile Access - User Management</PageTitle>
@@ -29,8 +31,7 @@
                 </FluentGridItem>
 
                 <FluentGridItem xs="12" sm="6" md="4" lg="3">
-                    <FluentTextField @bind-Value="userIdSearch"
-                        Placeholder="Enter User ID to find..."
+                    <FluentTextField @bind-Value="userIdSearch" Placeholder="Enter User ID to find..."
                         Appearance="FluentInputAppearance.Outline" style="width: 100%;">
                         <FluentIcon Value="@(new Icons.Regular.Size16.Person())" Slot="start" />
                     </FluentTextField>
@@ -118,12 +119,13 @@
 
                         <FluentGridItem xs="12" sm="6" md="4">
                             <FluentTextField @bind-Value="principalNameFilter" Label="Principal Name"
-                                Placeholder="Enter principal name" Appearance="FluentInputAppearance.Outline" style="width: 100%;" />
+                                Placeholder="Enter principal name" Appearance="FluentInputAppearance.Outline"
+                                style="width: 100%;" />
                         </FluentGridItem>
 
                         <FluentGridItem xs="12" sm="12" md="4">
-                            <FluentSelect TOption="string" @bind-Value="enabledStatusFilter" Label="Status" Appearance="Appearance.Outline"
-                                style="width: 100%;">
+                            <FluentSelect TOption="string" @bind-Value="enabledStatusFilter" Label="Status"
+                                Appearance="Appearance.Outline" style="width: 100%;">
                                 <FluentOption TOption="string" Value="">All Users</FluentOption>
                                 <FluentOption TOption="string" Value="enabled">Enabled Only</FluentOption>
                                 <FluentOption TOption="string" Value="disabled">Disabled Only</FluentOption>
@@ -131,8 +133,8 @@
                         </FluentGridItem>
                     </FluentGrid>
 
-                    <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Right" 
-                                 style="margin-top: 16px; gap: 8px;">
+                    <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Right"
+                        style="margin-top: 16px; gap: 8px;">
                         <FluentButton @onclick="ClearAdvancedFilters" Appearance="Appearance.Stealth">
                             Clear Filters
                         </FluentButton>
@@ -155,13 +157,10 @@
         <p style="margin-top: 16px;">@loadingMessage</p>
     </FluentCard>
 }
-else if (!string.IsNullOrEmpty(errorMessage))
+else if (currentErrorInfo != null)
 {
-    <FluentCard style="padding: 24px; background-color: var(--error-light); border: 1px solid var(--error);">
-        <div style="color: var(--error); font-weight: 600;">
-            Error: @errorMessage
-        </div>
-    </FluentCard>
+    <ErrorDisplay ErrorInfo="currentErrorInfo" ShowDetails="true" ShowRawContent="true" ShowDismiss="true"
+        OnDismiss="ClearError" />
 }
 else if (searchResults.Any())
 {
@@ -170,11 +169,8 @@ else if (searchResults.Any())
             <h3 style="margin: 0;">Users (@searchResults.Count)</h3>
         </div>
 
-        <FluentDataGrid Items="@searchResults.AsQueryable()" 
-                        GridTemplateColumns="60px 1fr 1.5fr 1.5fr 100px 140px 160px"
-                        style="width: 100%; overflow-x: auto;"
-                        Virtualize="true"
-                        ResizableColumns="true">
+        <FluentDataGrid Items="@searchResults.AsQueryable()" GridTemplateColumns="60px 1fr 1.5fr 1.5fr 100px 140px 160px"
+            style="width: 100%; overflow-x: auto;" Virtualize="true" ResizableColumns="true">
             <PropertyColumn Property="@(u => u.Id)" Title="ID" />
             <PropertyColumn Property="@(u => u.UserId)" Title="User ID" />
             <PropertyColumn Property="@(u => u.DisplayName)" Title="Display Name" />
@@ -183,11 +179,13 @@ else if (searchResults.Any())
                 <ChildContent Context="user">
                     @if (user.IsEnabled)
                     {
-                        <FluentBadge Appearance="Appearance.Accent" BackgroundColor="var(--success)" Color="white">Enabled</FluentBadge>
+                        <FluentBadge Appearance="Appearance.Accent" BackgroundColor="var(--success)" Color="white">Enabled
+                        </FluentBadge>
                     }
                     else
                     {
-                        <FluentBadge Appearance="Appearance.Neutral" BackgroundColor="var(--error)" Color="white">Disabled</FluentBadge>
+                        <FluentBadge Appearance="Appearance.Neutral" BackgroundColor="var(--error)" Color="white">Disabled
+                        </FluentBadge>
                     }
                 </ChildContent>
             </TemplateColumn>
@@ -228,29 +226,34 @@ else if (searchResults.Any())
         <FluentDialogHeader>
             <h3>@(isEditMode ? "Edit User" : "Create New User")</h3>
         </FluentDialogHeader>
-        
+
         <FluentDialogBody>
             <FluentGrid Spacing="3" AdaptiveRendering="true">
                 <FluentGridItem xs="12" sm="6">
                     <FluentTextField @bind-Value="currentUser.UserId" Label="User ID" Required="true"
                         Appearance="FluentInputAppearance.Outline" style="width: 100%;" />
                 </FluentGridItem>
-                
+
                 <FluentGridItem xs="12" sm="6">
                     <FluentTextField @bind-Value="currentUser.DisplayName" Label="Display Name" Required="true"
                         Appearance="FluentInputAppearance.Outline" style="width: 100%;" />
                 </FluentGridItem>
-                
+
                 <FluentGridItem xs="12">
                     <FluentTextField @bind-Value="currentUser.PrincipalName" Label="Principal Name" Required="true"
                         Appearance="FluentInputAppearance.Outline" style="width: 100%;" />
                 </FluentGridItem>
-                
-                <FluentGridItem xs="12" sm="6">
-                    <FluentTextField @bind-Value="currentUser.GraphId" Label="Graph ID" Required="true"
-                        Appearance="FluentInputAppearance.Outline" style="width: 100%;" />
-                </FluentGridItem>
-                
+
+                @if (isEditMode && !string.IsNullOrEmpty(currentUser.GraphId))
+                {
+                    <FluentGridItem xs="12" sm="6">
+                        <FluentLabel Typography="Typography.Body1" style="margin-bottom: 4px;">Graph ID</FluentLabel>
+                        <div class="graph-id-display">
+                            @currentUser.GraphId
+                        </div>
+                    </FluentGridItem>
+                }
+
                 <FluentGridItem xs="12" sm="6">
                     <div style="display: flex; align-items: center; height: 100%;">
                         <FluentSwitch @bind-Value="currentUser.IsEnabled" Label="Enabled" />
@@ -258,9 +261,10 @@ else if (searchResults.Any())
                 </FluentGridItem>
             </FluentGrid>
         </FluentDialogBody>
-        
+
         <FluentDialogFooter>
-            <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Right" style="gap: 8px;">
+            <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Right"
+                style="gap: 8px;">
                 <FluentButton @onclick="CloseUserDialog" Appearance="Appearance.Stealth">
                     Cancel
                 </FluentButton>
@@ -280,14 +284,16 @@ else if (searchResults.Any())
         <FluentDialogHeader>
             <h3>Confirm Delete</h3>
         </FluentDialogHeader>
-        
+
         <FluentDialogBody>
-            <p>Are you sure you want to delete the user <strong>@userToDelete?.DisplayName (@userToDelete?.UserId)</strong>?</p>
+            <p>Are you sure you want to delete the user <strong>@userToDelete?.DisplayName (@userToDelete?.UserId)</strong>?
+            </p>
             <p style="color: var(--error);">This action cannot be undone.</p>
         </FluentDialogBody>
-        
+
         <FluentDialogFooter>
-            <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Right" style="gap: 8px;">
+            <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Right"
+                style="gap: 8px;">
                 <FluentButton @onclick="CloseDeleteDialog" Appearance="Appearance.Stealth">
                     Cancel
                 </FluentButton>
@@ -393,7 +399,14 @@ else if (searchResults.Any())
         height: 28px;
         white-space: nowrap;
         border-width: 1px;
-        flex: 0 1 auto;
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        box-sizing: border-box;
+        position: relative;
+        transition: all 0.2s ease;
     }
 
     .action-btn .fluent-icon {
@@ -407,9 +420,9 @@ else if (searchResults.Any())
     }
 
     .edit-btn:hover {
-        background-color: var(--accent-fill-rest);
-        color: white;
-        border-color: var(--accent-fill-rest);
+        background-color: var(--accent-fill-rest) !important;
+        color: white !important;
+        border-color: var(--accent-fill-rest) !important;
     }
 
     .delete-btn {
@@ -418,11 +431,25 @@ else if (searchResults.Any())
     }
 
     .delete-btn:hover {
-        background-color: var(--error);
-        color: white;
-        border-color: var(--error);
+        background-color: var(--error) !important;
+        color: white !important;
+        border-color: var(--error) !important;
     }
 
+    /* Graph ID Display Styling */
+    .graph-id-display {
+        padding: 8px 12px;
+        background-color: var(--neutral-layer-2);
+        border: 1px solid var(--neutral-stroke-divider);
+        border-radius: 4px;
+        color: var(--neutral-foreground-rest);
+        font-family: monospace;
+        font-size: 13px;
+        word-break: break-all;
+        min-height: 20px;
+        display: flex;
+        align-items: center;
+    }
 </style>
 
 @code {
@@ -442,6 +469,7 @@ else if (searchResults.Any())
     private bool isLoading = false;
     private string loadingMessage = "Loading...";
     private string? errorMessage = null;
+    private ApiErrorInfo? currentErrorInfo = null;
 
     // Dialog and editing state
     private FluentDialog? userDialog;
@@ -472,6 +500,7 @@ else if (searchResults.Any())
         isLoading = true;
         loadingMessage = "Loading all users...";
         errorMessage = null;
+        currentErrorInfo = null;
 
         try
         {
@@ -479,7 +508,8 @@ else if (searchResults.Any())
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error loading users: {ex.Message}";
+            currentErrorInfo = errorHandlingService.ParseApiError(ex);
+            errorMessage = errorHandlingService.FormatErrorMessage(currentErrorInfo);
             searchResults.Clear();
         }
         finally
@@ -499,6 +529,7 @@ else if (searchResults.Any())
         isLoading = true;
         loadingMessage = $"Finding user with ID: {userIdSearch}";
         errorMessage = null;
+        currentErrorInfo = null;
 
         try
         {
@@ -508,7 +539,8 @@ else if (searchResults.Any())
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error finding user by ID '{userIdSearch}': {ex.Message}";
+            currentErrorInfo = errorHandlingService.ParseApiError(ex);
+            errorMessage = errorHandlingService.FormatErrorMessage(currentErrorInfo);
             searchResults.Clear();
         }
         finally
@@ -522,13 +554,14 @@ else if (searchResults.Any())
         isLoading = true;
         loadingMessage = "Searching users...";
         errorMessage = null;
+        currentErrorInfo = null;
 
         try
         {
             // For now, we'll load all users and filter client-side
             // In a real application, you might want to implement server-side filtering
             var allUsers = await userApi.GetAllUsersAsync();
-            
+
             var filteredUsers = allUsers.AsEnumerable();
 
             // Apply search term filter
@@ -539,10 +572,10 @@ else if (searchResults.Any())
                     "userid" => filteredUsers.Where(u => u.UserId.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)),
                     "displayname" => filteredUsers.Where(u => u.DisplayName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)),
                     "principalname" => filteredUsers.Where(u => u.PrincipalName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)),
-                    _ => filteredUsers.Where(u => 
-                        u.UserId.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                        u.DisplayName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                        u.PrincipalName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                    _ => filteredUsers.Where(u =>
+                    u.UserId.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                    u.DisplayName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                    u.PrincipalName.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
                 };
             }
 
@@ -554,7 +587,8 @@ else if (searchResults.Any())
 
             if (!string.IsNullOrWhiteSpace(principalNameFilter))
             {
-                filteredUsers = filteredUsers.Where(u => u.PrincipalName.Contains(principalNameFilter, StringComparison.OrdinalIgnoreCase));
+                filteredUsers = filteredUsers.Where(u => u.PrincipalName.Contains(principalNameFilter,
+                StringComparison.OrdinalIgnoreCase));
             }
 
             if (!string.IsNullOrWhiteSpace(enabledStatusFilter))
@@ -571,7 +605,8 @@ else if (searchResults.Any())
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error performing search: {ex.Message}";
+            currentErrorInfo = errorHandlingService.ParseApiError(ex);
+            errorMessage = errorHandlingService.FormatErrorMessage(currentErrorInfo);
             searchResults.Clear();
         }
         finally
@@ -598,12 +633,20 @@ else if (searchResults.Any())
         // Clear results and error
         searchResults.Clear();
         errorMessage = null;
+        currentErrorInfo = null;
     }
 
     private void ClearResults()
     {
         searchResults.Clear();
         errorMessage = null;
+        currentErrorInfo = null;
+    }
+
+    private void ClearError()
+    {
+        errorMessage = null;
+        currentErrorInfo = null;
     }
 
     private void ShowCreateUserDialog()
@@ -648,34 +691,41 @@ else if (searchResults.Any())
 
     private async Task SaveUser()
     {
-        if (string.IsNullOrWhiteSpace(currentUser.UserId) || 
-            string.IsNullOrWhiteSpace(currentUser.DisplayName) || 
-            string.IsNullOrWhiteSpace(currentUser.PrincipalName) ||
-            string.IsNullOrWhiteSpace(currentUser.GraphId))
+        if (string.IsNullOrWhiteSpace(currentUser.UserId) ||
+        string.IsNullOrWhiteSpace(currentUser.DisplayName) ||
+        string.IsNullOrWhiteSpace(currentUser.PrincipalName))
         {
             await JSRuntime.InvokeVoidAsync("alert", "Please fill in all required fields.");
+            return;
+        }
+
+        // For edit mode, ensure GraphId exists
+        if (isEditMode && string.IsNullOrWhiteSpace(currentUser.GraphId))
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Graph ID is required for existing users.");
             return;
         }
 
         isLoading = true;
         loadingMessage = isEditMode ? "Updating user..." : "Creating user...";
         errorMessage = null;
+        currentErrorInfo = null;
 
         try
         {
             if (isEditMode)
             {
                 var userToUpdate = new User(
-                    currentUser.Id,
-                    currentUser.GraphId,
-                    currentUser.UserId,
-                    currentUser.DisplayName,
-                    currentUser.PrincipalName,
-                    currentUser.IsEnabled,
-                    DateTime.UtcNow,
-                    null,
-                    DateTime.UtcNow,
-                    null
+                currentUser.Id,
+                currentUser.GraphId,
+                currentUser.UserId,
+                currentUser.DisplayName,
+                currentUser.PrincipalName,
+                currentUser.IsEnabled,
+                DateTime.UtcNow,
+                null,
+                DateTime.UtcNow,
+                null
                 );
 
                 await userApi.UpdateUserAsync(currentUser.Id, userToUpdate);
@@ -684,16 +734,16 @@ else if (searchResults.Any())
             else
             {
                 var newUser = new User(
-                    0, // ID will be assigned by the server
-                    currentUser.GraphId,
-                    currentUser.UserId,
-                    currentUser.DisplayName,
-                    currentUser.PrincipalName,
-                    currentUser.IsEnabled,
-                    DateTime.UtcNow,
-                    null,
-                    null,
-                    null
+                0, // ID will be assigned by the server
+                string.Empty, // GraphId will be generated by the system
+                currentUser.UserId,
+                currentUser.DisplayName,
+                currentUser.PrincipalName,
+                currentUser.IsEnabled,
+                DateTime.UtcNow,
+                null,
+                null,
+                null
                 );
 
                 await userApi.CreateUserAsync(newUser);
@@ -705,7 +755,8 @@ else if (searchResults.Any())
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error {(isEditMode ? "updating" : "creating")} user: {ex.Message}";
+            currentErrorInfo = errorHandlingService.ParseApiError(ex);
+            errorMessage = errorHandlingService.FormatErrorMessage(currentErrorInfo);
         }
         finally
         {
@@ -720,18 +771,20 @@ else if (searchResults.Any())
         isLoading = true;
         loadingMessage = "Deleting user...";
         errorMessage = null;
+        currentErrorInfo = null;
 
         try
         {
             await userApi.DeleteUserAsync(userToDelete.Id);
             await JSRuntime.InvokeVoidAsync("alert", "User deleted successfully!");
-            
+
             CloseDeleteDialog();
             await LoadAllUsers(); // Refresh the user list
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error deleting user: {ex.Message}";
+            currentErrorInfo = errorHandlingService.ParseApiError(ex);
+            errorMessage = errorHandlingService.FormatErrorMessage(currentErrorInfo);
         }
         finally
         {

@@ -2,6 +2,7 @@
 @using Client.Services
 
 @inject Client.Services.IAccessRequestApi api
+@inject Client.Services.IApiErrorHandlingService errorHandlingService
 
 <PageTitle>ProFile Access - Access Requests</PageTitle>
 
@@ -129,11 +130,8 @@
 }
 else if (!string.IsNullOrEmpty(errorMessage))
 {
-    <FluentCard style="padding: 24px; background-color: var(--error-light); border: 1px solid var(--error);">
-        <div style="color: var(--error); font-weight: 600;">
-            Error: @errorMessage
-        </div>
-    </FluentCard>
+    <ErrorDisplay ErrorInfo="currentErrorInfo" ShowDetails="true" ShowRawContent="true" ShowDismiss="true"
+        OnDismiss="ClearError" />
 }
 else if (searchResults.Any())
 {
@@ -232,11 +230,13 @@ else if (searchResults.Any())
     private List<AccessRequest> searchResults = new();
     private bool isLoading = false;
     private string? errorMessage = null;
+    private ApiErrorInfo? currentErrorInfo = null;
 
     private async Task PerformSearch()
     {
         isLoading = true;
         errorMessage = null;
+        currentErrorInfo = null;
 
         try
         {
@@ -260,7 +260,8 @@ else if (searchResults.Any())
         }
         catch (Exception ex)
         {
-            errorMessage = $"Error performing search: {ex.Message}";
+            currentErrorInfo = errorHandlingService.ParseApiError(ex);
+            errorMessage = errorHandlingService.FormatErrorMessage(currentErrorInfo);
             searchResults.Clear();
         }
         finally
@@ -291,5 +292,12 @@ else if (searchResults.Any())
         // Clear results and error
         searchResults.Clear();
         errorMessage = null;
+        currentErrorInfo = null;
+    }
+
+    private void ClearError()
+    {
+        errorMessage = null;
+        currentErrorInfo = null;
     }
 }
