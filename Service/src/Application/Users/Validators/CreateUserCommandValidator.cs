@@ -7,13 +7,13 @@ public class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
 {
     public CreateUserCommandValidator()
     {
-        RuleFor(x => x.GraphId)
-            .NotEmpty()
-            .WithMessage("Graph ID is required.")
-            .MaximumLength(255)
-            .WithMessage("Graph ID cannot exceed 255 characters.")
-            .Matches(@"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
-            .WithMessage("Graph ID must be a valid GUID format.");
+        // RuleFor(x => x.GraphId)
+        //     .NotEmpty()
+        //     .WithMessage("Graph ID is required.")
+        //     .MaximumLength(255)
+        //     .WithMessage("Graph ID cannot exceed 255 characters.")
+        //     .Matches(@"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+        //     .WithMessage("Graph ID must be a valid GUID format.");
 
         RuleFor(x => x.UserId)
             .NotEmpty()

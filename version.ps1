@@ -64,12 +64,17 @@ $JSON = @{
     GitTag      = $GIT_TAG
 } | ConvertTo-Json -Depth 10 -Compress
 
-# Write to version.json
-$OUTPUT_PATH = Join-Path -Path $SCRIPT_DIR -ChildPath "Service/src/Api/wwwroot/version.json"
+# Write version.json to Client
+$OUTPUT_PATH = Join-Path -Path $SCRIPT_DIR -ChildPath "Client/src/Client/wwwroot/version.json"
 New-Item -ItemType Directory -Path (Split-Path -Parent $OUTPUT_PATH) -Force | Out-Null
 $JSON | Set-Content -Path $OUTPUT_PATH -Encoding UTF8
 Write-Host "✅ version.json written to $OUTPUT_PATH"
 
+# Write version.json to Service
+$OUTPUT_PATH = Join-Path -Path $SCRIPT_DIR -ChildPath "Service/src/Api/wwwroot/version.json"
+New-Item -ItemType Directory -Path (Split-Path -Parent $OUTPUT_PATH) -Force | Out-Null
+$JSON | Set-Content -Path $OUTPUT_PATH -Encoding UTF8
+Write-Host "✅ version.json written to $OUTPUT_PATH"
 
 
 

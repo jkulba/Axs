@@ -17,8 +17,6 @@ public class User
 
     public bool IsEnabled { get; set; } = true;
 
-    public DateTime LastUpdated { get; set; }
-
     public DateTime UtcCreatedAt { get; set; }
 
     public string? CreatedByNum { get; set; }

@@ -1,0 +1,24 @@
+<!-- VersionInfoFooterDisplay.razor -->
+@inject VersionInfoService VersionInfoService
+
+<div class="version-info-footer">Build: @_buildNumber, @_buildDate</div>
+
+<style>
+    .version-info-footer {
+        margin: 0 0;
+        font-size: 1.0rem;
+        color: #6c757d;
+    }
+</style>
+
+@code {
+    private string? _buildNumber;
+    private string? _buildDate;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var versionInfo = await VersionInfoService.GetVersionInfo();
+        _buildNumber = versionInfo?.BuildNumber;
+        _buildDate = versionInfo?.GetFormattedBuildDate();
+    }
+}

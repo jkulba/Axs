@@ -1,0 +1,15 @@
+[Unit]
+Description=ProFile Access Client
+After=network.target
+
+[Service]
+ExecStart=/opt/access-client/client/Client
+WorkingDirectory=/opt/access-client/Client
+StandardOutput=file:/var/log/access-client.log
+StandardError=file:/var/log/access-client.log
+Environment="ASPNETCORE_ENVIRONMENT=DEV"
+Environment="DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=0"
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

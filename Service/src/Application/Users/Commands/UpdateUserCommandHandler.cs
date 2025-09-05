@@ -27,6 +27,8 @@ public class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand, Resul
         user.DisplayName = command.DisplayName;
         user.PrincipalName = command.PrincipalName;
         user.IsEnabled = command.IsEnabled;
+        user.UtcUpdatedAt = DateTime.UtcNow;
+        user.UpdatedByNum = "HAL-9000";
 
         await _userRepository.UpdateAsync(user, cancellationToken);
         return Result<User>.Success(user);

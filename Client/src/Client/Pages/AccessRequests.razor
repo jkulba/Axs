@@ -1,0 +1,303 @@
+@page "/access-requests"
+@using Client.Services
+
+@inject Client.Services.IAccessRequestApi api
+@inject Client.Services.IApiErrorHandlingService errorHandlingService
+
+<PageTitle>ProFile Access - Access Requests</PageTitle>
+
+<h1 style="display: flex; align-items: center; gap: 0.5rem;">
+    <FluentIcon Value="@(new Icons.Regular.Size32.DatabaseSearch())" Color="Color.Accent" />
+    Access Requests
+</h1>
+
+<div class="search-container">
+    <FluentCard class="search-card">
+        <div class="search-header">
+            <FluentIcon Value="@(new Icons.Regular.Size20.Search())" Color="Color.Neutral" />
+            <h3>Search Access Requests</h3>
+        </div>
+
+        <div class="search-form">
+            <FluentGrid>
+                <FluentGridItem xs="12" md="8">
+                    <FluentTextField @bind-Value="searchTerm"
+                        Placeholder="Search by user name, activity code, application name, or workstation..."
+                        Appearance="FluentInputAppearance.Outline" style="width: 100%;">
+                        <FluentIcon Value="@(new Icons.Regular.Size16.Search())" Slot="start" />
+                    </FluentTextField>
+                </FluentGridItem>
+
+                <FluentGridItem xs="12" md="2">
+                    <FluentSelect TOption="string" @bind-Value="searchType" Appearance="Appearance.Outline"
+                        style="width: 100%;">
+                        <FluentOption TOption="string" Value="">All Fields</FluentOption>
+                        <FluentOption TOption="string" Value="username">User Name</FluentOption>
+                        <FluentOption TOption="string" Value="activitycode">Activity Code</FluentOption>
+                        <FluentOption TOption="string" Value="application">Application</FluentOption>
+                        <FluentOption TOption="string" Value="workstation">Workstation</FluentOption>
+                    </FluentSelect>
+                </FluentGridItem>
+
+                <FluentGridItem xs="12" md="2">
+                    <div class="search-actions">
+                        <FluentButton @onclick="PerformSearch" Appearance="Appearance.Accent"
+                            IconStart="@(new Icons.Regular.Size16.Search())" style="width: 100%;">
+                            Search
+                        </FluentButton>
+                    </div>
+                </FluentGridItem>
+            </FluentGrid>
+
+            <div class="advanced-search-toggle" style="margin-top: 12px;">
+                <FluentButton @onclick="ToggleAdvancedSearch" Appearance="Appearance.Stealth"
+                    IconStart="@(showAdvancedSearch ? new Icons.Regular.Size16.ChevronUp() : new Icons.Regular.Size16.ChevronDown())">
+                    @(showAdvancedSearch ? "Hide" : "Show") Advanced Search
+                </FluentButton>
+            </div>
+
+            @if (showAdvancedSearch)
+            {
+                <div class="advanced-search-panel"
+                    style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--neutral-stroke-divider);">
+                    <FluentGrid>
+                        <FluentGridItem xs="12" md="4">
+                            <FluentTextField @bind-Value="userNameFilter" Label="User Name" Placeholder="Enter user name"
+                                Appearance="FluentInputAppearance.Outline" />
+                        </FluentGridItem>
+
+                        <FluentGridItem xs="12" md="4">
+                            <FluentNumberField @bind-Value="jobNumberFilter" Label="Job Number"
+                                Placeholder="Enter job number" Appearance="FluentInputAppearance.Outline" />
+                        </FluentGridItem>
+
+                        <FluentGridItem xs="12" md="4">
+                            <FluentNumberField @bind-Value="cycleNumberFilter" Label="Cycle Number"
+                                Placeholder="Enter cycle number" Appearance="FluentInputAppearance.Outline" />
+                        </FluentGridItem>
+                    </FluentGrid>
+
+                    <FluentGrid style="margin-top: 12px;">
+                        <FluentGridItem xs="12" md="4">
+                            <FluentTextField @bind-Value="activityCodeFilter" Label="Activity Code"
+                                Placeholder="Enter activity code" Appearance="FluentInputAppearance.Outline" />
+                        </FluentGridItem>
+
+                        <FluentGridItem xs="12" md="4">
+                            <FluentTextField @bind-Value="applicationNameFilter" Label="Application Name"
+                                Placeholder="Enter application name" Appearance="FluentInputAppearance.Outline" />
+                        </FluentGridItem>
+
+                        <FluentGridItem xs="12" md="4">
+                            <FluentTextField @bind-Value="workstationFilter" Label="Workstation"
+                                Placeholder="Enter workstation name" Appearance="FluentInputAppearance.Outline" />
+                        </FluentGridItem>
+                    </FluentGrid>
+
+                    <FluentGrid style="margin-top: 12px;">
+                        <FluentGridItem xs="12" md="6">
+                            <FluentDatePicker @bind-Value="createdFromDate" Label="Created From Date"
+                                Appearance="FluentInputAppearance.Outline" />
+                        </FluentGridItem>
+
+                        <FluentGridItem xs="12" md="6">
+                            <FluentDatePicker @bind-Value="createdToDate" Label="Created To Date"
+                                Appearance="FluentInputAppearance.Outline" />
+                        </FluentGridItem>
+                    </FluentGrid>
+
+                    <div style="margin-top: 12px; display: flex; gap: 8px; justify-content: flex-end;">
+                        <FluentButton @onclick="ClearAdvancedFilters" Appearance="Appearance.Stealth">
+                            Clear Filters
+                        </FluentButton>
+                        <FluentButton @onclick="PerformSearch" Appearance="Appearance.Accent"
+                            IconStart="@(new Icons.Regular.Size16.Search())">
+                            Apply Filters
+                        </FluentButton>
+                    </div>
+                </div>
+            }
+        </div>
+    </FluentCard>
+</div>
+
+@if (isLoading)
+{
+    <FluentCard style="padding: 24px; text-align: center;">
+        <FluentProgressRing />
+        <p style="margin-top: 16px;">Searching access requests...</p>
+    </FluentCard>
+}
+else if (!string.IsNullOrEmpty(errorMessage))
+{
+    <ErrorDisplay ErrorInfo="currentErrorInfo" ShowDetails="true" ShowRawContent="true" ShowDismiss="true"
+        OnDismiss="ClearError" />
+}
+else if (searchResults.Any())
+{
+    <FluentCard style="padding: 24px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+            <h3 style="margin: 0;">Search Results (@searchResults.Count)</h3>
+        </div>
+
+        <FluentDataGrid Items="@searchResults.AsQueryable()" GridTemplateColumns="1fr 1fr 1fr 1fr 1fr 1fr 1fr"
+            style="width: 100%;">
+            <PropertyColumn Property="@(r => r.Id)" Title="ID" />
+            <PropertyColumn Property="@(r => r.UserName)" Title="User Name" />
+            <PropertyColumn Property="@(r => r.JobNumber)" Title="Job Number" />
+            <PropertyColumn Property="@(r => r.CycleNumber)" Title="Cycle Number" />
+            <PropertyColumn Property="@(r => r.ActivityCode)" Title="Activity Code" />
+            <PropertyColumn Property="@(r => r.ApplicationName)" Title="Application" />
+            <PropertyColumn Property="@(r => r.Workstation)" Title="Workstation" />
+            <TemplateColumn Title="Created Date">
+                <ChildContent Context="request">
+                    @if (request.UtcCreatedAt.HasValue)
+                    {
+                        @request.UtcCreatedAt.Value.ToString("yyyy-MM-dd HH:mm")
+                    }
+                    else
+                    {
+                        <span style="color: var(--neutral-foreground-disabled);">N/A</span>
+                    }
+                </ChildContent>
+            </TemplateColumn>
+        </FluentDataGrid>
+    </FluentCard>
+}
+
+<style>
+    .search-container {
+        margin-bottom: 24px;
+    }
+
+    .search-card {
+        padding: 24px;
+        margin-bottom: 16px;
+    }
+
+    .search-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+
+    .search-header h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--neutral-foreground-rest);
+    }
+
+    .search-form .fluent-grid-item {
+        padding: 4px;
+    }
+
+    .search-actions {
+        display: flex;
+        align-items: flex-end;
+        height: 100%;
+    }
+
+    .advanced-search-toggle {
+        text-align: left;
+    }
+
+    .advanced-search-panel {
+        background-color: var(--neutral-layer-2);
+        border-radius: 6px;
+        padding: 16px;
+    }
+</style>
+
+@code {
+    // General search parameters
+    private string searchTerm = string.Empty;
+    private string searchType = string.Empty;
+    private bool showAdvancedSearch = false;
+
+    // AccessRequest specific search filters
+    private string userNameFilter = string.Empty;
+    private int? jobNumberFilter;
+    private int? cycleNumberFilter;
+    private string activityCodeFilter = string.Empty;
+    private string applicationNameFilter = string.Empty;
+    private string workstationFilter = string.Empty;
+    private DateTime? createdFromDate;
+    private DateTime? createdToDate;
+
+    // Search results and loading state
+    private List<AccessRequest> searchResults = new();
+    private bool isLoading = false;
+    private string? errorMessage = null;
+    private ApiErrorInfo? currentErrorInfo = null;
+
+    private async Task PerformSearch()
+    {
+        isLoading = true;
+        errorMessage = null;
+        currentErrorInfo = null;
+
+        try
+        {
+            var searchParams = new AccessRequestSearchParameters
+            {
+                SearchTerm = string.IsNullOrWhiteSpace(searchTerm) ? null : searchTerm,
+                SearchType = string.IsNullOrWhiteSpace(searchType) ? null : searchType,
+                UserName = string.IsNullOrWhiteSpace(userNameFilter) ? null : userNameFilter,
+                JobNumber = jobNumberFilter,
+                CycleNumber = cycleNumberFilter,
+                ActivityCode = string.IsNullOrWhiteSpace(activityCodeFilter) ? null : activityCodeFilter,
+                ApplicationName = string.IsNullOrWhiteSpace(applicationNameFilter) ? null : applicationNameFilter,
+                Workstation = string.IsNullOrWhiteSpace(workstationFilter) ? null : workstationFilter,
+                CreatedFromDate = createdFromDate,
+                CreatedToDate = createdToDate,
+                PageNumber = 1, // Default to first page
+                PageSize = 50 // Default page size
+            };
+
+            searchResults = (await api.SearchAccessRequestsQuery(searchParams)).ToList();
+        }
+        catch (Exception ex)
+        {
+            currentErrorInfo = errorHandlingService.ParseApiError(ex);
+            errorMessage = errorHandlingService.FormatErrorMessage(currentErrorInfo);
+            searchResults.Clear();
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void ToggleAdvancedSearch()
+    {
+        showAdvancedSearch = !showAdvancedSearch;
+    }
+
+    private void ClearAdvancedFilters()
+    {
+        // Clear all search filters
+        searchTerm = string.Empty;
+        searchType = string.Empty;
+        userNameFilter = string.Empty;
+        jobNumberFilter = null;
+        cycleNumberFilter = null;
+        activityCodeFilter = string.Empty;
+        applicationNameFilter = string.Empty;
+        workstationFilter = string.Empty;
+        createdFromDate = null;
+        createdToDate = null;
+
+        // Clear results and error
+        searchResults.Clear();
+        errorMessage = null;
+        currentErrorInfo = null;
+    }
+
+    private void ClearError()
+    {
+        errorMessage = null;
+        currentErrorInfo = null;
+    }
+}

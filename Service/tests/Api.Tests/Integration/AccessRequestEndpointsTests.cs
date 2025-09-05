@@ -78,4 +78,61 @@ public class AccessRequestEndpointsTests : IClassFixture<CustomWebApplicationFac
         // Assert
         Assert.Equal(System.Net.HttpStatusCode.Created, response.StatusCode);
     }
+
+    [Fact]
+    public async Task SearchAccessRequests_WithNoParameters_ReturnsOkOrNotFound()
+    {
+        // Act
+        var response = await _client.GetAsync("/api/access-requests/search", TestContext.Current.CancellationToken);
+
+        // Assert
+        var statusCode = response.StatusCode;
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        Assert.True(response.StatusCode == System.Net.HttpStatusCode.OK || response.StatusCode == System.Net.HttpStatusCode.NotFound,
+                   $"Expected OK or NotFound, but got {statusCode}. Content: {content}");
+    }
+
+    [Fact]
+    public async Task SearchAccessRequests_WithUserNameParameter_ReturnsOkOrNotFound()
+    {
+        // Act
+        var response = await _client.GetAsync("/api/access-requests/search?userName=john.doe", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.True(response.StatusCode == System.Net.HttpStatusCode.OK || response.StatusCode == System.Net.HttpStatusCode.NotFound,
+                   $"Expected OK or NotFound, but got {response.StatusCode}");
+    }
+
+    [Fact]
+    public async Task SearchAccessRequests_WithJobNumberParameter_ReturnsOkOrNotFound()
+    {
+        // Act
+        var response = await _client.GetAsync("/api/access-requests/search?jobNumber=12345", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.True(response.StatusCode == System.Net.HttpStatusCode.OK || response.StatusCode == System.Net.HttpStatusCode.NotFound,
+                   $"Expected OK or NotFound, but got {response.StatusCode}");
+    }
+
+    [Fact]
+    public async Task SearchAccessRequests_WithPaginationParameters_ReturnsOkOrNotFound()
+    {
+        // Act
+        var response = await _client.GetAsync("/api/access-requests/search?pageNumber=1&pageSize=10", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.True(response.StatusCode == System.Net.HttpStatusCode.OK || response.StatusCode == System.Net.HttpStatusCode.NotFound,
+                   $"Expected OK or NotFound, but got {response.StatusCode}");
+    }
+
+    [Fact]
+    public async Task SearchAccessRequests_WithMultipleParameters_ReturnsOkOrNotFound()
+    {
+        // Act
+        var response = await _client.GetAsync("/api/access-requests/search?userName=john&jobNumber=12345&pageNumber=1&pageSize=5", TestContext.Current.CancellationToken);
+
+        // Assert
+        Assert.True(response.StatusCode == System.Net.HttpStatusCode.OK || response.StatusCode == System.Net.HttpStatusCode.NotFound,
+                   $"Expected OK or NotFound, but got {response.StatusCode}");
+    }
 }

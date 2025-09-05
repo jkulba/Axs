@@ -1,0 +1,84 @@
+#!/bin/bash
+# chkconfig: 2345 99 01
+# description: ProFile Access Client
+# processname: access-client
+
+### BEGIN INIT INFO
+# Provides:          access-client
+# Required-Start:    $network
+# Required-Stop:     $network
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Starts and stops the Access Client Web App
+# Description:       Controls the execution of the Access Client Web App
+### END INIT INFO
+
+APP_NAME="access-client"
+APP_DIR="/opt/access-client/$APP_NAME"
+APP_EXEC="$APP_DIR/Client"
+PID_FILE="/var/run/$APP_NAME.pid"
+LOG_FILE="/var/log/$APP_NAME.log"
+
+start() {
+    echo "Starting $APP_NAME..."
+    if [ -f "$PID_FILE" ]; then
+        echo "$APP_NAME is already running."
+        exit 1
+    fi
+
+    # Set environment variables
+    export ASPNETCORE_ENVIRONMENT=DEV
+    export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
+
+    # Start the application in the background
+    nohup "$APP_EXEC" > "$LOG_FILE" 2>&1 &
+    echo $! > "$PID_FILE"
+    echo "$APP_NAME started with PID $(cat $PID_FILE)"
+}
+
+stop() {
+    echo "Stopping $APP_NAME..."
+    if [ ! -f "$PID_FILE" ]; then
+        echo "$APP_NAME is not running."
+        exit 1
+    fi
+
+    kill "$(cat $PID_FILE)"
+    rm -f "$PID_FILE"
+    echo "$APP_NAME stopped."
+}
+
+status() {
+    if [ -f "$PID_FILE" ]; then
+        echo "$APP_NAME is running with PID $(cat $PID_FILE)."
+    else
+        echo "$APP_NAME is not running."
+    fi
+}
+
+restart() {
+    stop
+    sleep 2
+    start
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    restart)
+        restart
+        ;;
+    status)
+        status
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart|status}"
+        exit 1
+        ;;
+esac
+
+exit 0

@@ -12,7 +12,7 @@ internal static class UserEndpoints
 {
     public static IEndpointRouteBuilder MapUserEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPost("/users", async (CreateUserCommand command, ICommandDispatcher commandDispatcher, ILogger<IEndpointRouteBuilder> logger) =>
+        app.MapPost("/api/users", async (CreateUserCommand command, ICommandDispatcher commandDispatcher, ILogger<IEndpointRouteBuilder> logger) =>
         {
             try
             {
@@ -45,7 +45,7 @@ internal static class UserEndpoints
         .WithTags("Users")
         .WithOpenApi();
 
-        app.MapPut("/users/{id}", async (int id, UpdateUserCommand command, ICommandDispatcher commandDispatcher, ILogger<IEndpointRouteBuilder> logger) =>
+        app.MapPut("/api/users/{id}", async (int id, UpdateUserCommand command, ICommandDispatcher commandDispatcher, ILogger<IEndpointRouteBuilder> logger) =>
         {
             try
             {
@@ -83,7 +83,7 @@ internal static class UserEndpoints
         .WithOpenApi();
 
 
-        app.MapDelete("/users/{id}", async (int id, ICommandDispatcher commandDispatcher, ILogger<IEndpointRouteBuilder> logger) =>
+        app.MapDelete("/api/users/{id}", async (int id, ICommandDispatcher commandDispatcher, ILogger<IEndpointRouteBuilder> logger) =>
         {
             var command = new DeleteUserCommand(id);
             var result = await commandDispatcher.Dispatch<DeleteUserCommand, Result<int>>(command, default);
@@ -100,12 +100,6 @@ internal static class UserEndpoints
         {
             var query = new GetUsersQuery();
             var result = await queryDispatcher.Dispatch<GetUsersQuery, Result<IEnumerable<User>>>(query, default);
-
-            // if (result.IsNotFound)
-            // {
-            //     return Results.NotFound($"Users not found.");
-            // }
-
             return result.IsSuccess ? Results.Ok(result.Value) : result.ToProblemDetails();
 
         })

@@ -25,7 +25,6 @@ public class UserRepositoryTests : TestBase
             DisplayName = "Test User",
             PrincipalName = "testuser@example.com",
             IsEnabled = true,
-            LastUpdated = DateTime.UtcNow,
             UtcCreatedAt = DateTime.UtcNow,
             CreatedByNum = "admin"
         };
@@ -65,7 +64,6 @@ public class UserRepositoryTests : TestBase
             DisplayName = "Test User",
             PrincipalName = "TestUser@Example.com",
             IsEnabled = true,
-            LastUpdated = DateTime.UtcNow,
             UtcCreatedAt = DateTime.UtcNow
         };
 
@@ -93,7 +91,6 @@ public class UserRepositoryTests : TestBase
             DisplayName = "Inherited Test User",
             PrincipalName = "inherited@example.com",
             IsEnabled = true,
-            LastUpdated = DateTime.UtcNow,
             UtcCreatedAt = DateTime.UtcNow
         };
 
@@ -120,7 +117,6 @@ public class UserRepositoryTests : TestBase
             DisplayName = "New User",
             PrincipalName = "newuser@example.com",
             IsEnabled = true,
-            LastUpdated = DateTime.UtcNow,
             UtcCreatedAt = DateTime.UtcNow,
             CreatedByNum = "system"
         };
@@ -150,7 +146,6 @@ public class UserRepositoryTests : TestBase
             DisplayName = "Original Name",
             PrincipalName = "updateme@example.com",
             IsEnabled = true,
-            LastUpdated = DateTime.UtcNow,
             UtcCreatedAt = DateTime.UtcNow
         };
 
@@ -192,7 +187,6 @@ public class UserRepositoryTests : TestBase
             DisplayName = "Delete Me",
             PrincipalName = "deleteme@example.com",
             IsEnabled = true,
-            LastUpdated = DateTime.UtcNow,
             UtcCreatedAt = DateTime.UtcNow
         };
 
@@ -227,7 +221,6 @@ public class UserRepositoryTests : TestBase
                 DisplayName = "User One",
                 PrincipalName = "user1@example.com",
                 IsEnabled = true,
-                LastUpdated = DateTime.UtcNow,
                 UtcCreatedAt = DateTime.UtcNow
             },
             new()
@@ -237,7 +230,6 @@ public class UserRepositoryTests : TestBase
                 DisplayName = "User Two",
                 PrincipalName = "user2@example.com",
                 IsEnabled = false,
-                LastUpdated = DateTime.UtcNow,
                 UtcCreatedAt = DateTime.UtcNow
             }
         };

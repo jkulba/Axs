@@ -1,3 +1,4 @@
+using Api.Contracts;
 using Api.Extensions;
 using Application.AccessRequests.Commands;
 using Application.AccessRequests.Queries;
@@ -28,6 +29,57 @@ internal static class AccessRequestEndpoints
         .WithName("GetAccessRequests")
         .WithSummary("Get all access requests")
         .WithDescription("Returns a list of all access requests.")
+        .WithTags("AccessRequests")
+        .WithOpenApi();
+
+        app.MapGet("/api/access-requests/search", async (
+            string? searchTerm,
+            string? searchType,
+            string? userName,
+            int? jobNumber,
+            int? cycleNumber,
+            string? activityCode,
+            string? applicationName,
+            string? workstation,
+            DateTime? createdFromDate,
+            DateTime? createdToDate,
+            int? pageNumber,
+            int? pageSize,
+            IQueryDispatcher queryDispatcher,
+            ILogger<IEndpointRouteBuilder> logger) =>
+        {
+            try
+            {
+                var searchParameters = new Api.Contracts.AccessRequestSearchParameters
+                {
+                    SearchTerm = searchTerm,
+                    SearchType = searchType,
+                    UserName = userName,
+                    JobNumber = jobNumber,
+                    CycleNumber = cycleNumber,
+                    ActivityCode = activityCode,
+                    ApplicationName = applicationName,
+                    Workstation = workstation,
+                    CreatedFromDate = createdFromDate,
+                    CreatedToDate = createdToDate,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize
+                };
+
+                var query = new SearchAccessRequestsQuery(searchParameters);
+                var result = await queryDispatcher.Dispatch<SearchAccessRequestsQuery, Result<IEnumerable<AccessRequest>>>(query, default);
+
+                return result.IsSuccess ? Results.Ok(result.Value) : result.ToProblemDetails();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error searching access requests with parameters: {@SearchParameters}", new { searchTerm, userName, jobNumber });
+                return Results.Problem("Internal server error", statusCode: 500);
+            }
+        })
+        .WithName("SearchAccessRequests")
+        .WithSummary("Search access requests")
+        .WithDescription("Returns a list of access requests filtered by the provided search parameters.")
         .WithTags("AccessRequests")
         .WithOpenApi();
 
@@ -105,7 +157,7 @@ internal static class AccessRequestEndpoints
         .WithTags("AccessRequests")
         .WithOpenApi();
 
-        app.MapGet("/api/access-requests/user/{userName}", async (string userName, IQueryDispatcher queryDispatcher, ILogger<IEndpointRouteBuilder> logger) =>
+        app.MapGet("/api/access-requests/user-name/{userName}", async (string userName, IQueryDispatcher queryDispatcher, ILogger<IEndpointRouteBuilder> logger) =>
         {
             try
             {

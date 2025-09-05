@@ -4,8 +4,22 @@
     <nav class="sitenav" aria-labelledby="main-menu">
         <FluentNavMenu Id="main-menu" Width="250" Collapsible="true" Title="Navigation menu" @bind-Expanded="expanded" CustomToggle="true">
              <FluentNavLink Href="/" Match="NavLinkMatch.All" Icon="@(new Icons.Regular.Size20.Home())" IconColor="Color.Accent">Home</FluentNavLink>
-             <FluentNavLink Href="counter" Icon="@(new Icons.Regular.Size20.NumberSymbolSquare())" IconColor="Color.Accent">Counter</FluentNavLink>
-             <FluentNavLink Href="weather" Icon="@(new Icons.Regular.Size20.WeatherPartlyCloudyDay())" IconColor="Color.Accent">Weather</FluentNavLink>
+            <FluentNavLink Href="authorizations" Icon="@(new Icons.Regular.Size20.DoorArrowLeft())" IconColor="Color.Accent">
+                Authorizations
+            </FluentNavLink>
+            <FluentNavLink Href="groups" Icon="@(new Icons.Regular.Size20.PeopleCommunity())" IconColor="Color.Accent">
+                Group Management
+            </FluentNavLink>
+            <FluentNavLink Href="users" Icon="@(new Icons.Regular.Size20.PeopleEdit())" IconColor="Color.Accent">
+                User Management
+            </FluentNavLink>
+            <FluentNavLink Href="access-requests" Icon="@(new Icons.Regular.Size20.DatabaseSearch())" IconColor="Color.Accent">
+                Access Requests
+            </FluentNavLink>
+            <FluentNavLink Href="version" Icon="@(new Icons.Regular.Size20.Tag())" IconColor="Color.Accent">
+                Version
+            </FluentNavLink>
+
         </FluentNavMenu>
     </nav>
 </div>

@@ -1,8 +1,18 @@
 ﻿@inherits LayoutComponentBase
+@using Client.Components.VersionInfo
+@using Microsoft.FluentUI.AspNetCore.Components
 
 <FluentLayout>
     <FluentHeader>
-        Client
+        <FluentStack>
+            <img src="access-32x32.png" alt="ProFile Access Management" style="height: 30px; margin-right: 8px;" />
+            ProFile Access Management
+        </FluentStack>
+        <FluentStack HorizontalAlignment="@HorizontalAlignment.End" VerticalAlignment="@VerticalAlignment.Center"
+            Style="height: 48px; padding-inline-end: 10px; ">
+            <FluentProfileMenu HeaderLabel="DFIN" Initials="BG" FullName="Bill Gates" EMail="bill.gates@microsoft.com"
+                PopoverStyle="min-width: 330px;" FooterLink="" />
+        </FluentStack>
     </FluentHeader>
     <FluentStack Class="main" Orientation="Orientation.Horizontal" Width="100%">
         <NavMenu />
@@ -20,8 +30,10 @@
         </FluentBodyContent>
     </FluentStack>
     <FluentFooter>
-        <a href="https://www.fluentui-blazor.net" target="_blank">Documentation and demos</a>
+        <div class="footer-section">
+            <VersionInfoFooterDisplay />
+        </div>
         <FluentSpacer />
-        <a href="https://learn.microsoft.com/en-us/aspnet/core/blazor" target="_blank">About Blazor</a>
+        <div class="footer-section">DFIN&reg; 2025</div>
     </FluentFooter>
 </FluentLayout>
